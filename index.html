@@ -204,20 +204,20 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-500">Jam Shift</label>
+                                    <label class="block text-xs font-medium text-gray-500">Jam</label>
                                     <input type="text" id="inputJam" class="w-full border p-2 rounded text-sm bg-gray-100" readonly placeholder="Pilih dinas...">
                                 </div>
                                 <div class="md:col-span-2">
                                     <label class="block text-xs font-medium text-gray-500">Kajaga (Kepala Penjaga)</label>
-                                    <input type="text" id="inputKajaga" class="w-full border p-2 rounded text-sm" placeholder="Nama Kajaga">
+                                    <input type="text" id="inputKajaga" class="w-full border p-2 rounded text-sm bg-gray-100" readonly placeholder="Diisi otomatis dari personel pertama">
                                 </div>
                             </div>
                         </div>
 
-                        <!-- CARD 2: PERSONEL -->
+                        <!-- CARD 2: DAFTAR PERSONEL -->
                         <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6 border-t-4 border-green-600">
                             <div class="flex justify-between items-center mb-4 border-b pb-2">
-                                <h3 class="text-lg font-semibold text-gray-700">2. Daftar Personel</h3>
+                                <h3 class="text-lg font-semibold text-gray-700">DAFTAR PERSONEL</h3>
                                 <button onclick="addPersonnelRow()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition">
                                     <i class="fas fa-plus"></i> <span class="hidden md:inline">Tambah</span>
                                 </button>
@@ -226,7 +226,7 @@
                                 <div class="flex flex-col md:flex-row gap-4 items-end personnel-row">
                                     <div class="flex-1 w-full">
                                         <label class="block text-xs font-medium text-gray-500">Nama</label>
-                                        <input type="text" class="w-full border p-2 rounded text-sm input-nama" placeholder="Nama Personel">
+                                        <input type="text" class="w-full border p-2 rounded text-sm input-nama" placeholder="Nama Personel" oninput="updateKajagaFromFirstPersonel()">
                                     </div>
                                     <div class="flex-1 w-full">
                                         <label class="block text-xs font-medium text-gray-500">Jabatan</label>
@@ -237,6 +237,7 @@
                                     </button>
                                 </div>
                             </div>
+                            <p class="text-xs text-gray-400 mt-2">Maksimal 4 personel</p>
                         </div>
 
                         <!-- CARD 3: INVENTARIS POS -->
@@ -345,7 +346,7 @@
         </div>
     </div>
 
-    <!-- TEMPLATE PDF (UPDATED TO MATCH UPLOADED PDF) -->
+    <!-- TEMPLATE PDF -->
     <div id="pdf-template">
         <!-- Header -->
         <div style="text-align: center; margin-bottom: 15px;">
@@ -507,10 +508,10 @@
 
             chartShiftInstance = new Chart(ctx.getContext('2d'), {
                 type: 'doughnut',
-                data: {
+                 {
                     labels: ['Shift I', 'Shift II', 'Shift III'],
                     datasets: [{
-                        data: [shiftCount['Shift I'], shiftCount['Shift II'], shiftCount['Shift III']],
+                         [shiftCount['Shift I'], shiftCount['Shift II'], shiftCount['Shift III']],
                         backgroundColor: ['#f97316', '#6366f1', '#4f46e5'],
                         borderWidth: 0
                     }]
@@ -643,9 +644,25 @@
             });
         }
 
+        // ==================== UPDATE KAJAGA FROM FIRST PERSONEL ====================
+        function updateKajagaFromFirstPersonel() {
+            const firstNamaInput = document.querySelector('.input-nama');
+            const kajagaInput = document.getElementById('inputKajaga');
+            if(firstNamaInput && kajagaInput) {
+                kajagaInput.value = firstNamaInput.value;
+            }
+        }
+
         // ==================== DYNAMIC INPUT LOGIC ====================
         function addPersonnelRow() {
             const container = document.getElementById('personnel-container');
+            
+            // Limit to 4 personnel
+            if(container.children.length >= 4) {
+                alert('Maksimal 4 personel!');
+                return;
+            }
+            
             const div = document.createElement('div');
             div.className = 'flex flex-col md:flex-row gap-4 items-end personnel-row animate-pulse';
             setTimeout(() => div.classList.remove('animate-pulse'), 500);
@@ -722,9 +739,11 @@
                 parent.remove();
                 if(container.id === 'inventaris-container') updateInventarisNumbers();
                 if(container.id === 'activity-container') updateKegiatanNumbers();
+                if(container.id === 'personnel-container') updateKajagaFromFirstPersonel();
             } else {
                 const inputs = parent.querySelectorAll('input');
                 inputs.forEach(input => input.value = '');
+                if(container.id === 'personnel-container') updateKajagaFromFirstPersonel();
             }
         }
 
@@ -805,7 +824,7 @@
             document.getElementById('pdf-jam').innerText = jam;
             document.getElementById('pdf-menyerahkan').innerText = '( ' + menyerah + ' )';
             document.getElementById('pdf-menerima').innerText = '( ' + menerima + ' )';
-            document.getElementById('pdf-lokasi-tanggal').innerText = 'PJT I, ' + formattedTanggal;
+            document.getElementById('pdf-lokasi-tanggal').innerText = 'PJT I , ' + formattedTanggal;
 
             // Personel Table
             const personelBody = document.getElementById('pdf-personel-body');
