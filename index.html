@@ -44,13 +44,17 @@
                 <p class="text-xs text-slate-400 mt-1">Mutasi Penjagaan</p>
             </div>
             <nav class="flex-1 py-4">
-                <a href="#" onclick="showPage('dashboard')" id="menu-dashboard" class="flex items-center px-6 py-3 bg-slate-700 border-l-4 border-blue-500 text-white">
+                <a href="#" onclick="showPage('dashboard')" id="menu-dashboard" class="flex items-center px-6 py-3 hover:bg-slate-700 border-l-4 border-transparent text-slate-300 hover:text-white transition">
                     <i class="fas fa-chart-line w-6"></i>
                     <span class="font-medium">Dashboard</span>
                 </a>
                 <a href="#" onclick="showPage('mutasi')" id="menu-mutasi" class="flex items-center px-6 py-3 hover:bg-slate-700 border-l-4 border-transparent text-slate-300 hover:text-white transition">
                     <i class="fas fa-file-alt w-6"></i>
                     <span class="font-medium">Mutasi</span>
+                </a>
+                <a href="#" onclick="showPage('setting')" id="menu-setting" class="flex items-center px-6 py-3 bg-slate-700 border-l-4 border-blue-500 text-white">
+                    <i class="fas fa-cog w-6"></i>
+                    <span class="font-medium">Setting</span>
                 </a>
             </nav>
             <div class="p-4 border-t border-slate-700 text-xs text-center text-slate-500">
@@ -67,6 +71,7 @@
                 <div class="flex gap-2">
                     <button onclick="showPage('dashboard')" class="text-xs bg-slate-700 px-2 py-1 rounded"><i class="fas fa-chart-line"></i></button>
                     <button onclick="showPage('mutasi')" class="text-xs bg-slate-700 px-2 py-1 rounded"><i class="fas fa-file-alt"></i></button>
+                    <button onclick="showPage('setting')" class="text-xs bg-slate-700 px-2 py-1 rounded"><i class="fas fa-cog"></i></button>
                 </div>
             </header>
 
@@ -74,7 +79,7 @@
             <main class="flex-1 overflow-y-auto p-4 md:p-8 pb-24">
                 
                 <!-- ==================== DASHBOARD SECTION ==================== -->
-                <div id="page-dashboard" class="page-section active">
+                <div id="page-dashboard" class="page-section">
                     <div class="max-w-6xl mx-auto">
                         <header class="mb-6 md:mb-8">
                             <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Dashboard</h2>
@@ -226,11 +231,13 @@
                                 <div class="flex flex-col md:flex-row gap-4 items-end personnel-row">
                                     <div class="flex-1 w-full">
                                         <label class="block text-xs font-medium text-gray-500">Nama</label>
-                                        <input type="text" class="w-full border p-2 rounded text-sm input-nama" placeholder="Nama Personel" oninput="updateKajagaFromFirstPersonel()">
+                                        <select class="w-full border p-2 rounded text-sm input-nama-select" onchange="updateJabatanFromSelect(this)">
+                                            <option value="">Pilih Nama...</option>
+                                        </select>
                                     </div>
                                     <div class="flex-1 w-full">
                                         <label class="block text-xs font-medium text-gray-500">Jabatan</label>
-                                        <input type="text" class="w-full border p-2 rounded text-sm input-jabatan" placeholder="Jabatan">
+                                        <input type="text" class="w-full border p-2 rounded text-sm input-jabatan bg-gray-100" readonly placeholder="Otomatis terisi">
                                     </div>
                                     <button onclick="removeRow(this)" class="bg-red-100 text-red-600 hover:bg-red-200 p-2 rounded w-full md:w-auto mb-[2px]">
                                         <i class="fas fa-trash"></i>
@@ -328,6 +335,58 @@
                                     <label class="block text-xs font-medium text-gray-500">Yang Menerima</label>
                                     <input type="text" id="inputMenerima" class="w-full border p-2 rounded text-sm" placeholder="Nama & Jabatan">
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== SETTING SECTION ==================== -->
+                <div id="page-setting" class="page-section active">
+                    <div class="max-w-5xl mx-auto">
+                        <header class="mb-6 md:mb-8">
+                            <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Setting Personel</h2>
+                            <p class="text-gray-600 text-sm md:text-base">Kelola data personel untuk dropdown di menu Mutasi.</p>
+                        </header>
+
+                        <!-- Add Personnel Form -->
+                        <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6 border-t-4 border-blue-600">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">Tambah Personel Baru</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500">Nama</label>
+                                    <input type="text" id="settingNama" class="w-full border p-2 rounded text-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Nama Personel">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500">Jabatan</label>
+                                    <input type="text" id="settingJabatan" class="w-full border p-2 rounded text-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Jabatan">
+                                </div>
+                                <div class="flex items-end">
+                                    <button onclick="addSettingPersonel()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded text-sm transition">
+                                        <i class="fas fa-plus"></i> Tambah
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Personnel List Table -->
+                        <div class="bg-white rounded-lg shadow-md p-4 md:p-6 border-t-4 border-green-600">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">Daftar Personel Tersimpan</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-gray-50 text-gray-600 text-sm uppercase">
+                                            <th class="p-3 border-b w-16">No</th>
+                                            <th class="p-3 border-b">Nama</th>
+                                            <th class="p-3 border-b">Jabatan</th>
+                                            <th class="p-3 border-b w-24 text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="setting-personel-body">
+                                        <tr>
+                                            <td colspan="4" class="p-4 text-center text-gray-400">Belum ada data personel</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -436,6 +495,13 @@
     </div>
 
     <script>
+        // ==================== DATA PERSONEL ====================
+        let dataPersonel = JSON.parse(localStorage.getItem('dataPersonel')) || [
+            { nama: 'Dimas Angga P', jabatan: 'Anggota' },
+            { nama: 'Agil Saputra', jabatan: 'Anggota' },
+            { nama: 'M. Ismail DC', jabatan: 'Anggota' }
+        ];
+
         // ==================== PAGE NAVIGATION ====================
         function showPage(pageName) {
             document.querySelectorAll('.page-section').forEach(page => {
@@ -448,6 +514,8 @@
             document.getElementById('menu-dashboard').classList.add('border-transparent', 'text-slate-300');
             document.getElementById('menu-mutasi').classList.remove('bg-slate-700', 'border-blue-500', 'text-white');
             document.getElementById('menu-mutasi').classList.add('border-transparent', 'text-slate-300');
+            document.getElementById('menu-setting').classList.remove('bg-slate-700', 'border-blue-500', 'text-white');
+            document.getElementById('menu-setting').classList.add('border-transparent', 'text-slate-300');
             
             document.getElementById('menu-' + pageName).classList.add('bg-slate-700', 'border-blue-500', 'text-white');
             document.getElementById('menu-' + pageName).classList.remove('border-transparent', 'text-slate-300');
@@ -455,6 +523,7 @@
             const btnGenerate = document.getElementById('btn-generate');
             if(pageName === 'mutasi') {
                 btnGenerate.style.display = 'block';
+                loadPersonelDropdown();
             } else {
                 btnGenerate.style.display = 'none';
             }
@@ -462,6 +531,98 @@
             if(pageName === 'dashboard') {
                 loadDashboardData();
             }
+            
+            if(pageName === 'setting') {
+                loadSettingPersonel();
+            }
+        }
+
+        // ==================== SETTING PERSONEL ====================
+        function loadSettingPersonel() {
+            const tbody = document.getElementById('setting-personel-body');
+            tbody.innerHTML = '';
+
+            if(dataPersonel.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400">Belum ada data personel</td></tr>';
+                return;
+            }
+
+            dataPersonel.forEach((p, index) => {
+                const row = `<tr class="hover:bg-gray-50">
+                    <td class="p-3 border-b text-sm">${index + 1}</td>
+                    <td class="p-3 border-b text-sm">${p.nama}</td>
+                    <td class="p-3 border-b text-sm">${p.jabatan}</td>
+                    <td class="p-3 border-b text-center">
+                        <button onclick="deletePersonel(${index})" class="text-red-500 hover:text-red-700">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function addSettingPersonel() {
+            const namaInput = document.getElementById('settingNama');
+            const jabatanInput = document.getElementById('settingJabatan');
+            
+            const nama = namaInput.value.trim();
+            const jabatan = jabatanInput.value.trim();
+            
+            if(!nama || !jabatan) {
+                alert('Nama dan jabatan harus diisi!');
+                return;
+            }
+
+            dataPersonel.push({ nama, jabatan });
+            localStorage.setItem('dataPersonel', JSON.stringify(dataPersonel));
+            
+            namaInput.value = '';
+            jabatanInput.value = '';
+            
+            loadSettingPersonel();
+            alert('Personel berhasil ditambahkan!');
+        }
+
+        function deletePersonel(index) {
+            if(confirm('Hapus personel ini?')) {
+                dataPersonel.splice(index, 1);
+                localStorage.setItem('dataPersonel', JSON.stringify(dataPersonel));
+                loadSettingPersonel();
+            }
+        }
+
+        // ==================== LOAD PERSONEL DROPDOWN ====================
+        function loadPersonelDropdown() {
+            const selects = document.querySelectorAll('.input-nama-select');
+            selects.forEach(select => {
+                const currentValue = select.value;
+                select.innerHTML = '<option value="">Pilih Nama...</option>';
+                
+                dataPersonel.forEach(p => {
+                    const option = document.createElement('option');
+                    option.value = p.nama;
+                    option.textContent = p.nama;
+                    option.setAttribute('data-jabatan', p.jabatan);
+                    select.appendChild(option);
+                });
+                
+                select.value = currentValue;
+            });
+        }
+
+        function updateJabatanFromSelect(selectElement) {
+            const row = selectElement.closest('.personnel-row');
+            const jabatanInput = row.querySelector('.input-jabatan');
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            
+            if(selectedOption && selectedOption.getAttribute('data-jabatan')) {
+                jabatanInput.value = selectedOption.getAttribute('data-jabatan');
+            } else {
+                jabatanInput.value = '';
+            }
+            
+            updateKajagaFromFirstPersonel();
         }
 
         // ==================== DASHBOARD DATA ====================
@@ -511,7 +672,7 @@
                 data: {
                     labels: ['Shift I', 'Shift II', 'Shift III'],
                     datasets: [{
-                        data: [shiftCount['Shift I'], shiftCount['Shift II'], shiftCount['Shift III']],
+                         [shiftCount['Shift I'], shiftCount['Shift II'], shiftCount['Shift III']],
                         backgroundColor: ['#f97316', '#6366f1', '#4f46e5'],
                         borderWidth: 0
                     }]
@@ -646,10 +807,10 @@
 
         // ==================== UPDATE KAJAGA FROM FIRST PERSONEL ====================
         function updateKajagaFromFirstPersonel() {
-            const firstNamaInput = document.querySelector('.input-nama');
+            const firstSelect = document.querySelector('.input-nama-select');
             const kajagaInput = document.getElementById('inputKajaga');
-            if(firstNamaInput && kajagaInput) {
-                kajagaInput.value = firstNamaInput.value;
+            if(firstSelect && kajagaInput) {
+                kajagaInput.value = firstSelect.value;
             }
         }
 
@@ -669,17 +830,20 @@
             div.innerHTML = `
                 <div class="flex-1 w-full">
                     <label class="block text-xs font-medium text-gray-500">Nama</label>
-                    <input type="text" class="w-full border p-2 rounded text-sm input-nama" placeholder="Nama Personel" oninput="updateKajagaFromFirstPersonel()">
+                    <select class="w-full border p-2 rounded text-sm input-nama-select" onchange="updateJabatanFromSelect(this)">
+                        <option value="">Pilih Nama...</option>
+                    </select>
                 </div>
                 <div class="flex-1 w-full">
                     <label class="block text-xs font-medium text-gray-500">Jabatan</label>
-                    <input type="text" class="w-full border p-2 rounded text-sm input-jabatan" placeholder="Jabatan">
+                    <input type="text" class="w-full border p-2 rounded text-sm input-jabatan bg-gray-100" readonly placeholder="Otomatis terisi">
                 </div>
                 <button onclick="removeRow(this)" class="bg-red-100 text-red-600 hover:bg-red-200 p-2 rounded w-full md:w-auto mb-[2px]">
                     <i class="fas fa-trash"></i>
                 </button>
             `;
             container.appendChild(div);
+            loadPersonelDropdown();
         }
 
         function addInventarisRow() {
@@ -738,11 +902,21 @@
                 parent.remove();
                 if(container.id === 'inventaris-container') updateInventarisNumbers();
                 if(container.id === 'activity-container') updateKegiatanNumbers();
-                if(container.id === 'personnel-container') updateKajagaFromFirstPersonel();
+                if(container.id === 'personnel-container') {
+                    updateKajagaFromFirstPersonel();
+                    loadPersonelDropdown();
+                }
             } else {
-                const inputs = parent.querySelectorAll('input');
-                inputs.forEach(input => input.value = '');
-                if(container.id === 'personnel-container') updateKajagaFromFirstPersonel();
+                if(container.id === 'personnel-container') {
+                    const select = parent.querySelector('.input-nama-select');
+                    const input = parent.querySelector('.input-jabatan');
+                    if(select) select.value = '';
+                    if(input) input.value = '';
+                    updateKajagaFromFirstPersonel();
+                } else {
+                    const inputs = parent.querySelectorAll('input');
+                    inputs.forEach(input => input.value = '');
+                }
             }
         }
 
@@ -774,27 +948,34 @@
             const formattedTanggal = tanggalParts[2] + '/' + tanggalParts[1] + '/' + tanggalParts[0];
 
             const personel = [];
-            document.querySelectorAll('.input-nama').forEach((input, index) => {
+            document.querySelectorAll('.input-nama-select').forEach((select, index) => {
+                const row = select.closest('.personnel-row');
+                const jabatanInput = row.querySelector('.input-jabatan');
                 personel.push({
-                    nama: input.value || '-',
-                    jabatan: document.querySelectorAll('.input-jabatan')[index].value || '-'
+                    nama: select.value || '-',
+                    jabatan: jabatanInput ? jabatanInput.value : '-'
                 });
             });
 
             const inventaris = [];
             document.querySelectorAll('.input-inv-nama').forEach((input, index) => {
+                const row = input.closest('.inventaris-row');
+                const jumlahInput = row.querySelector('.input-inv-jumlah');
+                const kondisiSelect = row.querySelector('.input-inv-kondisi');
                 inventaris.push({
                     nama: input.value || '-',
-                    jumlah: document.querySelectorAll('.input-inv-jumlah')[index].value || '-',
-                    kondisi: document.querySelectorAll('.input-inv-kondisi')[index].value || '-'
+                    jumlah: jumlahInput ? jumlahInput.value : '-',
+                    kondisi: kondisiSelect ? kondisiSelect.value : '-'
                 });
             });
 
             const kegiatan = [];
             document.querySelectorAll('.input-keg-jam').forEach((input, index) => {
+                const row = input.closest('.activity-row');
+                const uraianInput = row.querySelector('.input-keg-uraian');
                 kegiatan.push({
                     jam: input.value || '-',
-                    uraian: document.querySelectorAll('.input-keg-uraian')[index].value || '-'
+                    uraian: uraianInput ? uraianInput.value : '-'
                 });
             });
 
