@@ -78,23 +78,23 @@
                             </div>
                             <!-- Hari (Autofill) -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Hari <span class="text-xs text-gray-500">(Otomatis)</span></label>
+                                <label class="block text-sm font-medium text-gray-700">Hari</label>
                                 <input type="text" id="inputHari" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 bg-gray-100" readonly placeholder="Pilih tanggal...">
                             </div>
                             <!-- Dinas (Shift) -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Shift</label>
+                                <label class="block text-sm font-medium text-gray-700">Dinas</label>
                                 <select id="inputDinas" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-500 focus:ring-blue-500">
-                                    <option value="" disabled selected>Pilih Shift...</option>
-                                    <option value="Shift I">Shift I (06:00 - 14:00)</option>
-                                    <option value="Shift II">Shift II (14:00 - 22:00)</option>
-                                    <option value="Shift III">Shift III (22:00 - 06:00)</option>
+                                    <option value="" disabled selected>Pilih Dinas...</option>
+                                    <option value="Shift I">Shift I</option>
+                                    <option value="Shift II">Shift II</option>
+                                    <option value="Shift III">Shift III</option>
                                 </select>
                             </div>
                             <!-- Jam (Autofill) -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Waktu Shift <span class="text-xs text-gray-500">(Otomatis)</span></label>
-                                <input type="text" id="inputJam" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 bg-gray-100" readonly placeholder="Pilih shift...">
+                                <label class="block text-sm font-medium text-gray-700">Jam Shift</label>
+                                <input type="text" id="inputJam" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 bg-gray-100" readonly placeholder="Pilih dinas...">
                             </div>
                             <!-- Kajaga -->
                             <div class="md:col-span-2">
@@ -204,11 +204,11 @@
                 <td>: <span id="pdf-hari"></span>, <span id="pdf-tanggal"></span></td>
             </tr>
             <tr>
-                <td style="font-weight: bold;">Shift</td>
+                <td style="font-weight: bold;">Dinas</td>
                 <td>: <span id="pdf-dinas"></span></td>
             </tr>
             <tr>
-                <td style="font-weight: bold;">Waktu</td>
+                <td style="font-weight: bold;">Jam Shift</td>
                 <td>: <span id="pdf-jam"></span></td>
             </tr>
             <tr>
@@ -368,7 +368,7 @@
             document.getElementById('pdf-hari').innerText = hari;
             document.getElementById('pdf-tanggal').innerText = tanggal;
             document.getElementById('pdf-dinas').innerText = dinas;
-            document.getElementById('pdf-jam').innerText = jam; // Menggunakan input jam gabungan
+            document.getElementById('pdf-jam').innerText = jam; 
             document.getElementById('pdf-kajaga').innerText = kajaga;
             document.getElementById('pdf-menyerahkan').innerText = menyerah;
             document.getElementById('pdf-menerima').innerText = menerima;
