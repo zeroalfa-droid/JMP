@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Chart.js untuk Grafik -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         ::-webkit-scrollbar { width: 8px; }
@@ -21,12 +23,13 @@
             width: 210mm;
             min-height: 297mm;
         }
-        /* Style untuk input readonly agar terlihat berbeda */
         input[readonly] {
             background-color: #f3f4f6;
             cursor: not-allowed;
             color: #4b5563;
         }
+        .page-section { display: none; }
+        .page-section.active { display: block; }
     </style>
 </head>
 <body class="bg-gray-100 font-sans antialiased">
@@ -40,7 +43,11 @@
                 <p class="text-xs text-slate-400 mt-1">Mutasi Penjagaan</p>
             </div>
             <nav class="flex-1 py-4">
-                <a href="#" class="flex items-center px-6 py-3 bg-slate-700 border-l-4 border-blue-500 text-white">
+                <a href="#" onclick="showPage('dashboard')" id="menu-dashboard" class="flex items-center px-6 py-3 hover:bg-slate-700 border-l-4 border-transparent text-slate-300 hover:text-white transition">
+                    <i class="fas fa-chart-line w-6"></i>
+                    <span class="font-medium">Dashboard</span>
+                </a>
+                <a href="#" onclick="showPage('mutasi')" id="menu-mutasi" class="flex items-center px-6 py-3 bg-slate-700 border-l-4 border-blue-500 text-white">
                     <i class="fas fa-file-alt w-6"></i>
                     <span class="font-medium">Mutasi</span>
                 </a>
@@ -56,132 +63,241 @@
             <!-- MOBILE HEADER -->
             <header class="md:hidden bg-slate-800 text-white p-4 flex justify-between items-center shadow-md z-20">
                 <div class="font-bold text-lg">E-REPORT</div>
-                <div class="text-xs bg-slate-700 px-2 py-1 rounded">Mutasi Penjagaan</div>
+                <div class="flex gap-2">
+                    <button onclick="showPage('dashboard')" class="text-xs bg-slate-700 px-2 py-1 rounded"><i class="fas fa-chart-line"></i></button>
+                    <button onclick="showPage('mutasi')" class="text-xs bg-slate-700 px-2 py-1 rounded"><i class="fas fa-file-alt"></i></button>
+                </div>
             </header>
 
             <!-- SCROLLABLE CONTENT AREA -->
             <main class="flex-1 overflow-y-auto p-4 md:p-8 pb-24">
-                <div class="max-w-5xl mx-auto">
-                    <header class="mb-6 md:mb-8">
-                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Input Laporan Mutasi</h2>
-                        <p class="text-gray-600 text-sm md:text-base">Isi data di bawah ini untuk menghasilkan laporan PDF.</p>
-                    </header>
+                
+                <!-- ==================== DASHBOARD PAGE ==================== -->
+                <div id="page-dashboard" class="page-section">
+                    <div class="max-w-6xl mx-auto">
+                        <header class="mb-6 md:mb-8">
+                            <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Dashboard</h2>
+                            <p class="text-gray-600 text-sm md:text-base">Statistik dan ringkasan laporan mutasi penjagaan.</p>
+                        </header>
 
-                    <!-- CARD 1: INFORMASI SHIFT (STYLING FIXED) -->
-                    <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6 border-t-4 border-blue-600">
-                        <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">INFORMASI SHIFT</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- Tanggal -->
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500">Tanggal</label>
-                                <input type="date" id="inputTanggal" class="w-full border p-2 rounded text-sm focus:border-blue-500 focus:ring-blue-500">
+                        <!-- Stats Cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
+                            <!-- Card 1 -->
+                            <div class="bg-white rounded-lg shadow-md p-4 md:p-6 border-l-4 border-blue-600">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs font-medium text-gray-500 uppercase">Total Laporan</p>
+                                        <p class="text-2xl md:text-3xl font-bold text-gray-800" id="stat-total">0</p>
+                                    </div>
+                                    <div class="bg-blue-100 p-3 rounded-full">
+                                        <i class="fas fa-file-alt text-blue-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-2">Bulan ini</p>
                             </div>
-                            <!-- Hari (Autofill) -->
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500">Hari</label>
-                                <input type="text" id="inputHari" class="w-full border p-2 rounded text-sm bg-gray-100" readonly placeholder="Pilih tanggal...">
+                            <!-- Card 2 -->
+                            <div class="bg-white rounded-lg shadow-md p-4 md:p-6 border-l-4 border-green-600">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs font-medium text-gray-500 uppercase">Personel Aktif</p>
+                                        <p class="text-2xl md:text-3xl font-bold text-gray-800" id="stat-personel">0</p>
+                                    </div>
+                                    <div class="bg-green-100 p-3 rounded-full">
+                                        <i class="fas fa-users text-green-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-2">Terdaftar</p>
                             </div>
-                            <!-- Dinas (Shift) -->
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500">Dinas</label>
-                                <select id="inputDinas" class="w-full border p-2 rounded text-sm focus:border-blue-500 focus:ring-blue-500">
-                                    <option value="" disabled selected>Pilih Dinas...</option>
-                                    <option value="Shift I">Shift I</option>
-                                    <option value="Shift II">Shift II</option>
-                                    <option value="Shift III">Shift III</option>
-                                </select>
+                            <!-- Card 3 -->
+                            <div class="bg-white rounded-lg shadow-md p-4 md:p-6 border-l-4 border-orange-600">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs font-medium text-gray-500 uppercase">Shift I</p>
+                                        <p class="text-2xl md:text-3xl font-bold text-gray-800" id="stat-shift1">0</p>
+                                    </div>
+                                    <div class="bg-orange-100 p-3 rounded-full">
+                                        <i class="fas fa-sun text-orange-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-2">06:00 - 14:00</p>
                             </div>
-                            <!-- Jam (Autofill) -->
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500">Jam Shift</label>
-                                <input type="text" id="inputJam" class="w-full border p-2 rounded text-sm bg-gray-100" readonly placeholder="Pilih dinas...">
+                            <!-- Card 4 -->
+                            <div class="bg-white rounded-lg shadow-md p-4 md:p-6 border-l-4 border-indigo-600">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs font-medium text-gray-500 uppercase">Shift II & III</p>
+                                        <p class="text-2xl md:text-3xl font-bold text-gray-800" id="stat-shift23">0</p>
+                                    </div>
+                                    <div class="bg-indigo-100 p-3 rounded-full">
+                                        <i class="fas fa-moon text-indigo-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-2">14:00 - 06:00</p>
                             </div>
-                            <!-- Kajaga -->
-                            <div class="md:col-span-2">
-                                <label class="block text-xs font-medium text-gray-500">Kajaga (Kepala Penjaga)</label>
-                                <input type="text" id="inputKajaga" class="w-full border p-2 rounded text-sm" placeholder="Nama Kajaga">
+                        </div>
+
+                        <!-- Charts Row -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
+                            <!-- Chart Distribusi Shift -->
+                            <div class="bg-white rounded-lg shadow-md p-4 md:p-6">
+                                <h3 class="text-lg font-semibold text-gray-700 mb-4">Distribusi Shift</h3>
+                                <div class="h-64">
+                                    <canvas id="chartShift"></canvas>
+                                </div>
+                            </div>
+                            <!-- Chart Laporan Per Hari -->
+                            <div class="bg-white rounded-lg shadow-md p-4 md:p-6">
+                                <h3 class="text-lg font-semibold text-gray-700 mb-4">Laporan Per Hari (Minggu Ini)</h3>
+                                <div class="h-64">
+                                    <canvas id="chartHarian"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Reports Table -->
+                        <div class="bg-white rounded-lg shadow-md p-4 md:p-6">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">Laporan Terbaru</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-gray-50 text-gray-600 text-sm uppercase">
+                                            <th class="p-3 border-b">Tanggal</th>
+                                            <th class="p-3 border-b">Hari</th>
+                                            <th class="p-3 border-b">Dinas</th>
+                                            <th class="p-3 border-b">Kajaga</th>
+                                            <th class="p-3 border-b text-center">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-reports-body">
+                                        <tr>
+                                            <td colspan="5" class="p-4 text-center text-gray-400">Belum ada laporan</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- CARD 2: PERSONEL -->
-                    <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6 border-t-4 border-green-600">
-                        <div class="flex justify-between items-center mb-4 border-b pb-2">
-                            <h3 class="text-lg font-semibold text-gray-700">2. Daftar Personel</h3>
-                            <button onclick="addPersonnelRow()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition">
-                                <i class="fas fa-plus"></i> <span class="hidden md:inline">Tambah</span>
-                            </button>
+                <!-- ==================== MUTASI PAGE ==================== -->
+                <div id="page-mutasi" class="page-section active">
+                    <div class="max-w-5xl mx-auto">
+                        <header class="mb-6 md:mb-8">
+                            <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Input Laporan Mutasi</h2>
+                            <p class="text-gray-600 text-sm md:text-base">Isi data di bawah ini untuk menghasilkan laporan PDF.</p>
+                        </header>
+
+                        <!-- CARD 1: INFORMASI SHIFT -->
+                        <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6 border-t-4 border-blue-600">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">INFORMASI SHIFT</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500">Tanggal</label>
+                                    <input type="date" id="inputTanggal" class="w-full border p-2 rounded text-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500">Hari</label>
+                                    <input type="text" id="inputHari" class="w-full border p-2 rounded text-sm bg-gray-100" readonly placeholder="Pilih tanggal...">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500">Dinas</label>
+                                    <select id="inputDinas" class="w-full border p-2 rounded text-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <option value="" disabled selected>Pilih Dinas...</option>
+                                        <option value="Shift I">Shift I</option>
+                                        <option value="Shift II">Shift II</option>
+                                        <option value="Shift III">Shift III</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500">Jam Shift</label>
+                                    <input type="text" id="inputJam" class="w-full border p-2 rounded text-sm bg-gray-100" readonly placeholder="Pilih dinas...">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-medium text-gray-500">Kajaga (Kepala Penjaga)</label>
+                                    <input type="text" id="inputKajaga" class="w-full border p-2 rounded text-sm" placeholder="Nama Kajaga">
+                                </div>
+                            </div>
                         </div>
-                        <div id="personnel-container" class="space-y-3">
-                            <div class="flex flex-col md:flex-row gap-4 items-end personnel-row">
-                                <div class="flex-1 w-full">
-                                    <label class="block text-xs font-medium text-gray-500">Nama</label>
-                                    <input type="text" class="w-full border p-2 rounded text-sm input-nama" placeholder="Nama Personel">
-                                </div>
-                                <div class="flex-1 w-full">
-                                    <label class="block text-xs font-medium text-gray-500">Jabatan</label>
-                                    <input type="text" class="w-full border p-2 rounded text-sm input-jabatan" placeholder="Jabatan">
-                                </div>
-                                <button onclick="removeRow(this)" class="bg-red-100 text-red-600 hover:bg-red-200 p-2 rounded w-full md:w-auto mb-[2px]">
-                                    <i class="fas fa-trash"></i>
+
+                        <!-- CARD 2: PERSONEL -->
+                        <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6 border-t-4 border-green-600">
+                            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                                <h3 class="text-lg font-semibold text-gray-700">2. Daftar Personel</h3>
+                                <button onclick="addPersonnelRow()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition">
+                                    <i class="fas fa-plus"></i> <span class="hidden md:inline">Tambah</span>
                                 </button>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- CARD 3: KEGIATAN -->
-                    <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6 border-t-4 border-orange-600">
-                        <div class="flex justify-between items-center mb-4 border-b pb-2">
-                            <h3 class="text-lg font-semibold text-gray-700">3. Uraian Kegiatan</h3>
-                            <button onclick="addActivityRow()" class="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-sm transition">
-                                <i class="fas fa-plus"></i> <span class="hidden md:inline">Tambah</span>
-                            </button>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse min-w-[600px]">
-                                <thead>
-                                    <tr class="bg-gray-50 text-gray-600 text-sm uppercase">
-                                        <th class="p-3 border-b w-32">Jam</th>
-                                        <th class="p-3 border-b">Uraian Kegiatan</th>
-                                        <th class="p-3 border-b w-10 text-center">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="activity-container">
-                                    <tr class="activity-row border-b hover:bg-gray-50">
-                                        <td class="p-2"><input type="time" class="w-full border p-2 rounded text-sm input-keg-jam"></td>
-                                        <td class="p-2"><input type="text" class="w-full border p-2 rounded text-sm input-keg-uraian" placeholder="Deskripsi kegiatan..."></td>
-                                        <td class="p-2 text-center">
-                                            <button onclick="removeRow(this)" class="text-red-500 hover:text-red-700">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <p class="text-xs text-gray-400 mt-2 md:hidden">*Geser ke samping untuk melihat tabel lengkap</p>
-                        </div>
-                    </div>
-
-                    <!-- CARD 4: TANDA TANGAN (STYLING FIXED TO MATCH CARD 1) -->
-                    <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-8 border-t-4 border-indigo-600">
-                        <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">4. Serah Terima</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500">Yang Menyerahkan</label>
-                                <input type="text" id="inputMenyerahkan" class="w-full border p-2 rounded text-sm" placeholder="Nama & Jabatan">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500">Yang Menerima</label>
-                                <input type="text" id="inputMenerima" class="w-full border p-2 rounded text-sm" placeholder="Nama & Jabatan">
+                            <div id="personnel-container" class="space-y-3">
+                                <div class="flex flex-col md:flex-row gap-4 items-end personnel-row">
+                                    <div class="flex-1 w-full">
+                                        <label class="block text-xs font-medium text-gray-500">Nama</label>
+                                        <input type="text" class="w-full border p-2 rounded text-sm input-nama" placeholder="Nama Personel">
+                                    </div>
+                                    <div class="flex-1 w-full">
+                                        <label class="block text-xs font-medium text-gray-500">Jabatan</label>
+                                        <input type="text" class="w-full border p-2 rounded text-sm input-jabatan" placeholder="Jabatan">
+                                    </div>
+                                    <button onclick="removeRow(this)" class="bg-red-100 text-red-600 hover:bg-red-200 p-2 rounded w-full md:w-auto mb-[2px]">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
+                        <!-- CARD 3: KEGIATAN -->
+                        <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6 border-t-4 border-orange-600">
+                            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                                <h3 class="text-lg font-semibold text-gray-700">3. Uraian Kegiatan</h3>
+                                <button onclick="addActivityRow()" class="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-sm transition">
+                                    <i class="fas fa-plus"></i> <span class="hidden md:inline">Tambah</span>
+                                </button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse min-w-[600px]">
+                                    <thead>
+                                        <tr class="bg-gray-50 text-gray-600 text-sm uppercase">
+                                            <th class="p-3 border-b w-32">Jam</th>
+                                            <th class="p-3 border-b">Uraian Kegiatan</th>
+                                            <th class="p-3 border-b w-10 text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="activity-container">
+                                        <tr class="activity-row border-b hover:bg-gray-50">
+                                            <td class="p-2"><input type="time" class="w-full border p-2 rounded text-sm input-keg-jam"></td>
+                                            <td class="p-2"><input type="text" class="w-full border p-2 rounded text-sm input-keg-uraian" placeholder="Deskripsi kegiatan..."></td>
+                                            <td class="p-2 text-center">
+                                                <button onclick="removeRow(this)" class="text-red-500 hover:text-red-700">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <p class="text-xs text-gray-400 mt-2 md:hidden">*Geser ke samping untuk melihat tabel lengkap</p>
+                            </div>
+                        </div>
+
+                        <!-- CARD 4: TANDA TANGAN -->
+                        <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-8 border-t-4 border-indigo-600">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">4. Serah Terima</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500">Yang Menyerahkan</label>
+                                    <input type="text" id="inputMenyerahkan" class="w-full border p-2 rounded text-sm" placeholder="Nama & Jabatan">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500">Yang Menerima</label>
+                                    <input type="text" id="inputMenerima" class="w-full border p-2 rounded text-sm" placeholder="Nama & Jabatan">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
             </main>
 
-            <!-- ACTION BUTTON -->
-            <div class="absolute bottom-6 right-6 z-30">
+            <!-- ACTION BUTTON (Only for Mutasi Page) -->
+            <div id="btn-generate" class="absolute bottom-6 right-6 z-30">
                 <button onclick="generatePDF()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 md:py-4 md:px-8 rounded-full shadow-lg transform transition hover:scale-105 flex items-center gap-2">
                     <i class="fas fa-file-pdf text-xl"></i>
                     <span class="hidden md:inline">GENERATE PDF</span>
@@ -263,16 +379,195 @@
     </div>
 
     <script>
-        // --- LOGIC AUTOFILL ---
-        
-        // 1. Autofill Hari berdasarkan Tanggal
+        // ==================== NAVIGATION ====================
+        function showPage(pageName) {
+            // Hide all pages
+            document.querySelectorAll('.page-section').forEach(page => {
+                page.classList.remove('active');
+            });
+            // Show selected page
+            document.getElementById('page-' + pageName).classList.add('active');
+            
+            // Update menu active state (Desktop)
+            document.getElementById('menu-dashboard').classList.remove('bg-slate-700', 'border-blue-500', 'text-white');
+            document.getElementById('menu-dashboard').classList.add('border-transparent', 'text-slate-300');
+            document.getElementById('menu-mutasi').classList.remove('bg-slate-700', 'border-blue-500', 'text-white');
+            document.getElementById('menu-mutasi').classList.add('border-transparent', 'text-slate-300');
+            
+            document.getElementById('menu-' + pageName).classList.add('bg-slate-700', 'border-blue-500', 'text-white');
+            document.getElementById('menu-' + pageName).classList.remove('border-transparent', 'text-slate-300');
+
+            // Show/hide generate button
+            const btnGenerate = document.getElementById('btn-generate');
+            if(pageName === 'mutasi') {
+                btnGenerate.style.display = 'block';
+            } else {
+                btnGenerate.style.display = 'none';
+            }
+
+            // Load dashboard data if dashboard is shown
+            if(pageName === 'dashboard') {
+                loadDashboardData();
+            }
+        }
+
+        // ==================== DASHBOARD DATA & CHARTS ====================
+        let chartShiftInstance = null;
+        let chartHarianInstance = null;
+
+        // Simpan data laporan (untuk demo - nanti bisa diganti dengan database)
+        let laporanData = JSON.parse(localStorage.getItem('laporanMutasi')) || [];
+
+        function loadDashboardData() {
+            // Hitung statistik
+            const currentMonth = new Date().getMonth();
+            const laporanBulanIni = laporanData.filter(l => {
+                const lDate = new Date(l.tanggal);
+                return lDate.getMonth() === currentMonth;
+            });
+
+            document.getElementById('stat-total').innerText = laporanBulanIni.length;
+            
+            // Hitung personel unik
+            const semuaPersonel = new Set();
+            laporanData.forEach(l => {
+                l.personel.forEach(p => semuaPersonel.add(p.nama));
+            });
+            document.getElementById('stat-personel').innerText = semuaPersonel.size;
+
+            // Hitung distribusi shift
+            const shiftCount = { 'Shift I': 0, 'Shift II': 0, 'Shift III': 0 };
+            laporanBulanIni.forEach(l => {
+                if(shiftCount[l.dinas] !== undefined) shiftCount[l.dinas]++;
+            });
+            document.getElementById('stat-shift1').innerText = shiftCount['Shift I'];
+            document.getElementById('stat-shift23').innerText = shiftCount['Shift II'] + shiftCount['Shift III'];
+
+            // Update Chart Shift
+            updateShiftChart(shiftCount);
+
+            // Update Chart Harian (7 hari terakhir)
+            updateHarianChart();
+
+            // Update Recent Reports
+            updateRecentReports();
+        }
+
+        function updateShiftChart(shiftCount) {
+            const ctx = document.getElementById('chartShift').getContext('2d');
+            
+            if(chartShiftInstance) {
+                chartShiftInstance.destroy();
+            }
+
+            chartShiftInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Shift I', 'Shift II', 'Shift III'],
+                    datasets: [{
+                         [shiftCount['Shift I'], shiftCount['Shift II'], shiftCount['Shift III']],
+                        backgroundColor: ['#f97316', '#6366f1', '#4f46e5'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateHarianChart() {
+            const ctx = document.getElementById('chartHarian').getContext('2d');
+            const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+            const today = new Date();
+            const dataHarian = [0, 0, 0, 0, 0, 0, 0];
+
+            // Hitung laporan 7 hari terakhir
+            for(let i = 0; i < 7; i++) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dayIndex = date.getDay();
+                
+                const count = laporanData.filter(l => {
+                    const lDate = new Date(l.tanggal);
+                    return lDate.toDateString() === date.toDateString();
+                }).length;
+                
+                dataHarian[dayIndex] = count;
+            }
+
+            if(chartHarianInstance) {
+                chartHarianInstance.destroy();
+            }
+
+            chartHarianInstance = new Chart(ctx, {
+                type: 'bar',
+                 {
+                    labels: days,
+                    datasets: [{
+                        label: 'Jumlah Laporan',
+                        data: dataHarian,
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateRecentReports() {
+            const tbody = document.getElementById('recent-reports-body');
+            tbody.innerHTML = '';
+
+            if(laporanData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400">Belum ada laporan</td></tr>';
+                return;
+            }
+
+            // Ambil 5 laporan terakhir
+            const recent = laporanData.slice(-5).reverse();
+            
+            recent.forEach(l => {
+                const row = `<tr class="hover:bg-gray-50">
+                    <td class="p-3 border-b text-sm">${l.tanggal}</td>
+                    <td class="p-3 border-b text-sm">${l.hari}</td>
+                    <td class="p-3 border-b text-sm"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">${l.dinas}</span></td>
+                    <td class="p-3 border-b text-sm">${l.kajaga}</td>
+                    <td class="p-3 border-b text-center"><span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Selesai</span></td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        // ==================== AUTOFILL LOGIC ====================
         const dateInput = document.getElementById('inputTanggal');
         const dayInput = document.getElementById('inputHari');
         const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
         dateInput.addEventListener('change', function() {
             if(this.value) {
-                // Parse date manually to avoid timezone issues
                 const parts = this.value.split('-');
                 const date = new Date(parts[0], parts[1] - 1, parts[2]);
                 dayInput.value = days[date.getDay()];
@@ -281,7 +576,6 @@
             }
         });
 
-        // 2. Autofill Jam berdasarkan Shift
         const shiftInput = document.getElementById('inputDinas');
         const jamInput = document.getElementById('inputJam');
         const shiftTimes = {
@@ -298,8 +592,7 @@
             }
         });
 
-        // --- LOGIC DINAMIS INPUT ---
-
+        // ==================== DYNAMIC INPUT LOGIC ====================
         function addPersonnelRow() {
             const container = document.getElementById('personnel-container');
             const div = document.createElement('div');
@@ -351,10 +644,8 @@
             }
         }
 
-        // --- LOGIC GENERATE PDF ---
-
+        // ==================== GENERATE PDF LOGIC ====================
         function generatePDF() {
-            // 1. Ambil Data
             const hari = document.getElementById('inputHari').value || '__________';
             const tanggal = document.getElementById('inputTanggal').value || '__________';
             const dinas = document.getElementById('inputDinas').value || '__________';
@@ -363,12 +654,34 @@
             const menyerah = document.getElementById('inputMenyerahkan').value || '__________________';
             const menerima = document.getElementById('inputMenerima').value || '__________________';
 
-            // 2. Isi Template PDF
+            // Kumpulkan data personel
+            const personel = [];
+            document.querySelectorAll('.input-nama').forEach((input, index) => {
+                personel.push({
+                    nama: input.value || '-',
+                    jabatan: document.querySelectorAll('.input-jabatan')[index].value || '-'
+                });
+            });
+
+            // Simpan ke localStorage untuk dashboard
+            if(tanggal !== '__________') {
+                laporanData.push({
+                    tanggal: tanggal,
+                    hari: hari,
+                    dinas: dinas,
+                    jam: jam,
+                    kajaga: kajaga,
+                    personel: personel
+                });
+                localStorage.setItem('laporanMutasi', JSON.stringify(laporanData));
+            }
+
+            // Isi Template PDF
             document.getElementById('pdf-periode').innerText = `${dinas.toUpperCase()} - ${new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long' })}`;
             document.getElementById('pdf-hari').innerText = hari;
             document.getElementById('pdf-tanggal').innerText = tanggal;
             document.getElementById('pdf-dinas').innerText = dinas;
-            document.getElementById('pdf-jam').innerText = jam; 
+            document.getElementById('pdf-jam').innerText = jam;
             document.getElementById('pdf-kajaga').innerText = kajaga;
             document.getElementById('pdf-menyerahkan').innerText = menyerah;
             document.getElementById('pdf-menerima').innerText = menerima;
@@ -377,16 +690,11 @@
             // Personel
             const personelBody = document.getElementById('pdf-personel-body');
             personelBody.innerHTML = '';
-            const namaInputs = document.querySelectorAll('.input-nama');
-            const jabatanInputs = document.querySelectorAll('.input-jabatan');
-            
-            namaInputs.forEach((input, index) => {
-                const nama = input.value || '-';
-                const jabatan = jabatanInputs[index].value || '-';
+            personel.forEach((p, index) => {
                 const row = `<tr>
                     <td style="border: 1px solid black; padding: 5px; text-align: center;">${index + 1}</td>
-                    <td style="border: 1px solid black; padding: 5px;">${nama}</td>
-                    <td style="border: 1px solid black; padding: 5px;">${jabatan}</td>
+                    <td style="border: 1px solid black; padding: 5px;">${p.nama}</td>
+                    <td style="border: 1px solid black; padding: 5px;">${p.jabatan}</td>
                 </tr>`;
                 personelBody.innerHTML += row;
             });
@@ -407,7 +715,7 @@
                 kegiatanBody.innerHTML += row;
             });
 
-            // 3. Generate
+            // Generate
             const element = document.getElementById('pdf-template');
             element.style.display = 'block';
 
