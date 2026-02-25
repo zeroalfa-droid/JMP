@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Chart.js untuk Grafik -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
@@ -43,11 +42,11 @@
                 <p class="text-xs text-slate-400 mt-1">Mutasi Penjagaan</p>
             </div>
             <nav class="flex-1 py-4">
-                <a href="#" onclick="showPage('dashboard')" id="menu-dashboard" class="flex items-center px-6 py-3 hover:bg-slate-700 border-l-4 border-transparent text-slate-300 hover:text-white transition">
+                <a href="#" onclick="showPage('dashboard')" id="menu-dashboard" class="flex items-center px-6 py-3 bg-slate-700 border-l-4 border-blue-500 text-white">
                     <i class="fas fa-chart-line w-6"></i>
                     <span class="font-medium">Dashboard</span>
                 </a>
-                <a href="#" onclick="showPage('mutasi')" id="menu-mutasi" class="flex items-center px-6 py-3 bg-slate-700 border-l-4 border-blue-500 text-white">
+                <a href="#" onclick="showPage('mutasi')" id="menu-mutasi" class="flex items-center px-6 py-3 hover:bg-slate-700 border-l-4 border-transparent text-slate-300 hover:text-white transition">
                     <i class="fas fa-file-alt w-6"></i>
                     <span class="font-medium">Mutasi</span>
                 </a>
@@ -72,8 +71,8 @@
             <!-- SCROLLABLE CONTENT AREA -->
             <main class="flex-1 overflow-y-auto p-4 md:p-8 pb-24">
                 
-                <!-- ==================== DASHBOARD PAGE ==================== -->
-                <div id="page-dashboard" class="page-section">
+                <!-- ==================== DASHBOARD SECTION ==================== -->
+                <div id="page-dashboard" class="page-section active">
                     <div class="max-w-6xl mx-auto">
                         <header class="mb-6 md:mb-8">
                             <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Dashboard</h2>
@@ -82,7 +81,6 @@
 
                         <!-- Stats Cards -->
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
-                            <!-- Card 1 -->
                             <div class="bg-white rounded-lg shadow-md p-4 md:p-6 border-l-4 border-blue-600">
                                 <div class="flex items-center justify-between">
                                     <div>
@@ -95,7 +93,6 @@
                                 </div>
                                 <p class="text-xs text-gray-400 mt-2">Bulan ini</p>
                             </div>
-                            <!-- Card 2 -->
                             <div class="bg-white rounded-lg shadow-md p-4 md:p-6 border-l-4 border-green-600">
                                 <div class="flex items-center justify-between">
                                     <div>
@@ -108,7 +105,6 @@
                                 </div>
                                 <p class="text-xs text-gray-400 mt-2">Terdaftar</p>
                             </div>
-                            <!-- Card 3 -->
                             <div class="bg-white rounded-lg shadow-md p-4 md:p-6 border-l-4 border-orange-600">
                                 <div class="flex items-center justify-between">
                                     <div>
@@ -121,7 +117,6 @@
                                 </div>
                                 <p class="text-xs text-gray-400 mt-2">06:00 - 14:00</p>
                             </div>
-                            <!-- Card 4 -->
                             <div class="bg-white rounded-lg shadow-md p-4 md:p-6 border-l-4 border-indigo-600">
                                 <div class="flex items-center justify-between">
                                     <div>
@@ -138,14 +133,12 @@
 
                         <!-- Charts Row -->
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
-                            <!-- Chart Distribusi Shift -->
                             <div class="bg-white rounded-lg shadow-md p-4 md:p-6">
                                 <h3 class="text-lg font-semibold text-gray-700 mb-4">Distribusi Shift</h3>
                                 <div class="h-64">
                                     <canvas id="chartShift"></canvas>
                                 </div>
                             </div>
-                            <!-- Chart Laporan Per Hari -->
                             <div class="bg-white rounded-lg shadow-md p-4 md:p-6">
                                 <h3 class="text-lg font-semibold text-gray-700 mb-4">Laporan Per Hari (Minggu Ini)</h3>
                                 <div class="h-64">
@@ -179,8 +172,8 @@
                     </div>
                 </div>
 
-                <!-- ==================== MUTASI PAGE ==================== -->
-                <div id="page-mutasi" class="page-section active">
+                <!-- ==================== MUTASI SECTION ==================== -->
+                <div id="page-mutasi" class="page-section">
                     <div class="max-w-5xl mx-auto">
                         <header class="mb-6 md:mb-8">
                             <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Input Laporan Mutasi</h2>
@@ -296,8 +289,8 @@
 
             </main>
 
-            <!-- ACTION BUTTON (Only for Mutasi Page) -->
-            <div id="btn-generate" class="absolute bottom-6 right-6 z-30">
+            <!-- ACTION BUTTON -->
+            <div id="btn-generate" class="absolute bottom-6 right-6 z-30" style="display: none;">
                 <button onclick="generatePDF()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 md:py-4 md:px-8 rounded-full shadow-lg transform transition hover:scale-105 flex items-center gap-2">
                     <i class="fas fa-file-pdf text-xl"></i>
                     <span class="hidden md:inline">GENERATE PDF</span>
@@ -379,16 +372,17 @@
     </div>
 
     <script>
-        // ==================== NAVIGATION ====================
+        // ==================== PAGE NAVIGATION ====================
         function showPage(pageName) {
             // Hide all pages
             document.querySelectorAll('.page-section').forEach(page => {
                 page.classList.remove('active');
             });
+            
             // Show selected page
             document.getElementById('page-' + pageName).classList.add('active');
             
-            // Update menu active state (Desktop)
+            // Update menu active state
             document.getElementById('menu-dashboard').classList.remove('bg-slate-700', 'border-blue-500', 'text-white');
             document.getElementById('menu-dashboard').classList.add('border-transparent', 'text-slate-300');
             document.getElementById('menu-mutasi').classList.remove('bg-slate-700', 'border-blue-500', 'text-white');
@@ -411,15 +405,12 @@
             }
         }
 
-        // ==================== DASHBOARD DATA & CHARTS ====================
+        // ==================== DASHBOARD DATA ====================
         let chartShiftInstance = null;
         let chartHarianInstance = null;
-
-        // Simpan data laporan (untuk demo - nanti bisa diganti dengan database)
         let laporanData = JSON.parse(localStorage.getItem('laporanMutasi')) || [];
 
         function loadDashboardData() {
-            // Hitung statistik
             const currentMonth = new Date().getMonth();
             const laporanBulanIni = laporanData.filter(l => {
                 const lDate = new Date(l.tanggal);
@@ -428,14 +419,14 @@
 
             document.getElementById('stat-total').innerText = laporanBulanIni.length;
             
-            // Hitung personel unik
             const semuaPersonel = new Set();
             laporanData.forEach(l => {
-                l.personel.forEach(p => semuaPersonel.add(p.nama));
+                if(l.personel) {
+                    l.personel.forEach(p => semuaPersonel.add(p.nama));
+                }
             });
             document.getElementById('stat-personel').innerText = semuaPersonel.size;
 
-            // Hitung distribusi shift
             const shiftCount = { 'Shift I': 0, 'Shift II': 0, 'Shift III': 0 };
             laporanBulanIni.forEach(l => {
                 if(shiftCount[l.dinas] !== undefined) shiftCount[l.dinas]++;
@@ -443,29 +434,25 @@
             document.getElementById('stat-shift1').innerText = shiftCount['Shift I'];
             document.getElementById('stat-shift23').innerText = shiftCount['Shift II'] + shiftCount['Shift III'];
 
-            // Update Chart Shift
             updateShiftChart(shiftCount);
-
-            // Update Chart Harian (7 hari terakhir)
             updateHarianChart();
-
-            // Update Recent Reports
             updateRecentReports();
         }
 
         function updateShiftChart(shiftCount) {
-            const ctx = document.getElementById('chartShift').getContext('2d');
+            const ctx = document.getElementById('chartShift');
+            if(!ctx) return;
             
             if(chartShiftInstance) {
                 chartShiftInstance.destroy();
             }
 
-            chartShiftInstance = new Chart(ctx, {
+            chartShiftInstance = new Chart(ctx.getContext('2d'), {
                 type: 'doughnut',
                 data: {
                     labels: ['Shift I', 'Shift II', 'Shift III'],
                     datasets: [{
-                         [shiftCount['Shift I'], shiftCount['Shift II'], shiftCount['Shift III']],
+                        data: [shiftCount['Shift I'], shiftCount['Shift II'], shiftCount['Shift III']],
                         backgroundColor: ['#f97316', '#6366f1', '#4f46e5'],
                         borderWidth: 0
                     }]
@@ -483,12 +470,13 @@
         }
 
         function updateHarianChart() {
-            const ctx = document.getElementById('chartHarian').getContext('2d');
+            const ctx = document.getElementById('chartHarian');
+            if(!ctx) return;
+
             const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
             const today = new Date();
             const dataHarian = [0, 0, 0, 0, 0, 0, 0];
 
-            // Hitung laporan 7 hari terakhir
             for(let i = 0; i < 7; i++) {
                 const date = new Date(today);
                 date.setDate(date.getDate() - i);
@@ -506,9 +494,9 @@
                 chartHarianInstance.destroy();
             }
 
-            chartHarianInstance = new Chart(ctx, {
+            chartHarianInstance = new Chart(ctx.getContext('2d'), {
                 type: 'bar',
-                 {
+                data: {
                     labels: days,
                     datasets: [{
                         label: 'Jumlah Laporan',
@@ -539,6 +527,8 @@
 
         function updateRecentReports() {
             const tbody = document.getElementById('recent-reports-body');
+            if(!tbody) return;
+            
             tbody.innerHTML = '';
 
             if(laporanData.length === 0) {
@@ -546,7 +536,6 @@
                 return;
             }
 
-            // Ambil 5 laporan terakhir
             const recent = laporanData.slice(-5).reverse();
             
             recent.forEach(l => {
@@ -566,15 +555,17 @@
         const dayInput = document.getElementById('inputHari');
         const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
-        dateInput.addEventListener('change', function() {
-            if(this.value) {
-                const parts = this.value.split('-');
-                const date = new Date(parts[0], parts[1] - 1, parts[2]);
-                dayInput.value = days[date.getDay()];
-            } else {
-                dayInput.value = '';
-            }
-        });
+        if(dateInput) {
+            dateInput.addEventListener('change', function() {
+                if(this.value) {
+                    const parts = this.value.split('-');
+                    const date = new Date(parts[0], parts[1] - 1, parts[2]);
+                    dayInput.value = days[date.getDay()];
+                } else {
+                    dayInput.value = '';
+                }
+            });
+        }
 
         const shiftInput = document.getElementById('inputDinas');
         const jamInput = document.getElementById('inputJam');
@@ -584,13 +575,15 @@
             'Shift III': '22:00 - 06:00'
         };
 
-        shiftInput.addEventListener('change', function() {
-            if(this.value && shiftTimes[this.value]) {
-                jamInput.value = shiftTimes[this.value];
-            } else {
-                jamInput.value = '';
-            }
-        });
+        if(shiftInput) {
+            shiftInput.addEventListener('change', function() {
+                if(this.value && shiftTimes[this.value]) {
+                    jamInput.value = shiftTimes[this.value];
+                } else {
+                    jamInput.value = '';
+                }
+            });
+        }
 
         // ==================== DYNAMIC INPUT LOGIC ====================
         function addPersonnelRow() {
@@ -654,7 +647,6 @@
             const menyerah = document.getElementById('inputMenyerahkan').value || '__________________';
             const menerima = document.getElementById('inputMenerima').value || '__________________';
 
-            // Kumpulkan data personel
             const personel = [];
             document.querySelectorAll('.input-nama').forEach((input, index) => {
                 personel.push({
@@ -663,7 +655,6 @@
                 });
             });
 
-            // Simpan ke localStorage untuk dashboard
             if(tanggal !== '__________') {
                 laporanData.push({
                     tanggal: tanggal,
@@ -676,7 +667,6 @@
                 localStorage.setItem('laporanMutasi', JSON.stringify(laporanData));
             }
 
-            // Isi Template PDF
             document.getElementById('pdf-periode').innerText = `${dinas.toUpperCase()} - ${new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long' })}`;
             document.getElementById('pdf-hari').innerText = hari;
             document.getElementById('pdf-tanggal').innerText = tanggal;
@@ -687,7 +677,6 @@
             document.getElementById('pdf-menerima').innerText = menerima;
             document.getElementById('pdf-cetak-time').innerText = new Date().toLocaleString('id-ID');
 
-            // Personel
             const personelBody = document.getElementById('pdf-personel-body');
             personelBody.innerHTML = '';
             personel.forEach((p, index) => {
@@ -699,7 +688,6 @@
                 personelBody.innerHTML += row;
             });
 
-            // Kegiatan
             const kegiatanBody = document.getElementById('pdf-kegiatan-body');
             kegiatanBody.innerHTML = '';
             const kegJamInputs = document.querySelectorAll('.input-keg-jam');
@@ -715,7 +703,6 @@
                 kegiatanBody.innerHTML += row;
             });
 
-            // Generate
             const element = document.getElementById('pdf-template');
             element.style.display = 'block';
 
@@ -733,6 +720,12 @@
                 element.style.display = 'none';
             });
         }
+
+        // Load dashboard on page load
+        window.addEventListener('load', function() {
+            loadDashboardData();
+        });
     </script>
 </body>
 </html>
+
