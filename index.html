@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Laporan Mutasi Penjagaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        
+        #pdf-template {
+            display: none;
+            background: white;
+            padding: 40px;
+            width: 210mm;
+            min-height: 297mm;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- SIDEBAR (Hanya muncul di Layar Besar / Desktop) -->
+        <aside class="hidden md:flex w-64 bg-slate-800 text-white flex-col shadow-lg flex-shrink-0">
+            <div class="p-6 text-center border-b border-slate-700">
+                <h1 class="text-xl font-bold tracking-wider">E-REPORT</h1>
+                <p class="text-xs text-slate-400 mt-1">Mutasi Penjagaan</p>
+            </div>
+            <nav class="flex-1 py-4">
+                <a href="#" class="flex items-center px-6 py-3 bg-slate-700 border-l-4 border-blue-500 text-white">
+                    <i class="fas fa-file-alt w-6"></i>
+                    <span class="font-medium">Mutasi</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t border-slate-700 text-xs text-center text-slate-500">
+                &copy; 2023 Web Developer Partner
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT WRAPPER -->
+        <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
+            
+            <!-- MOBILE HEADER (Hanya muncul di HP) -->
+            <header class="md:hidden bg-slate-800 text-white p-4 flex justify-between items-center shadow-md z-20">
+                <div class="font-bold text-lg">E-REPORT</div>
+                <div class="text-xs bg-slate-700 px-2 py-1 rounded">Mutasi Penjagaan</div>
+            </header>
+
+            <!-- SCROLLABLE CONTENT AREA -->
+            <main class="flex-1 overflow-y-auto p-4 md:p-8 pb-24">
+                <div class="max-w-5xl mx-auto">
+                    <header class="mb-6 md:mb-8">
+                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Input Laporan Mutasi</h2>
+                        <p class="text-gray-600 text-sm md:text-base">Isi data di bawah ini untuk menghasilkan laporan PDF.</p>
+                    </header>
+
+                    <!-- CARD 1: DATA UMUM -->
+                    <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6 border-t-4 border-blue-600">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">1. Informasi Dasar</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Hari</label>
+                                <input type="text" id="inputHari" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-500 focus:ring-blue-500" placeholder="Contoh: Senin">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Tanggal</label>
+                                <input type="date" id="inputTanggal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Dinas</label>
+                                <select id="inputDinas" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-500 focus:ring-blue-500">
+                                    <option value="Pagi">Pagi (08.00 - 14.00)</option>
+                                    <option value="Siang">Siang (14.00 - 20.00)</option>
+                                    <option value="Malam">Malam (20.00 - 08.00)</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700">Kajaga (Kepala Penjaga)</label>
+                                <input type="text" id="inputKajaga" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2" placeholder="Nama Kajaga">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Jam Mulai - Selesai</label>
+                                <div class="flex gap-2">
+                                    <input type="time" id="inputJamMulai" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+                                    <span class="self-center text-gray-500">s/d</span>
+                                    <input type="time" id="inputJamSelesai" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CARD 2: PERSONEL -->
+                    <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6 border-t-4 border-green-600">
+                        <div class="flex justify-between items-center mb-4 border-b pb-2">
+                            <h3 class="text-lg font-semibold text-gray-700">2. Daftar Personel</h3>
+                            <button onclick="addPersonnelRow()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition">
+                                <i class="fas fa-plus"></i> <span class="hidden md:inline">Tambah</span>
+                            </button>
+                        </div>
+                        <div id="personnel-container" class="space-y-3">
+                            <div class="flex flex-col md:flex-row gap-4 items-end personnel-row">
+                                <div class="flex-1 w-full">
+                                    <label class="block text-xs font-medium text-gray-500">Nama</label>
+                                    <input type="text" class="w-full border p-2 rounded text-sm input-nama" placeholder="Nama Personel">
+                                </div>
+                                <div class="flex-1 w-full">
+                                    <label class="block text-xs font-medium text-gray-500">Jabatan</label>
+                                    <input type="text" class="w-full border p-2 rounded text-sm input-jabatan" placeholder="Jabatan">
+                                </div>
+                                <button onclick="removeRow(this)" class="bg-red-100 text-red-600 hover:bg-red-200 p-2 rounded w-full md:w-auto mb-[2px]">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CARD 3: KEGIATAN -->
+                    <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6 border-t-4 border-orange-600">
+                        <div class="flex justify-between items-center mb-4 border-b pb-2">
+                            <h3 class="text-lg font-semibold text-gray-700">3. Uraian Kegiatan</h3>
+                            <button onclick="addActivityRow()" class="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-sm transition">
+                                <i class="fas fa-plus"></i> <span class="hidden md:inline">Tambah</span>
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse min-w-[600px]">
+                                <thead>
+                                    <tr class="bg-gray-50 text-gray-600 text-sm uppercase">
+                                        <th class="p-3 border-b w-32">Jam</th>
+                                        <th class="p-3 border-b">Uraian Kegiatan</th>
+                                        <th class="p-3 border-b w-10 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="activity-container">
+                                    <tr class="activity-row border-b hover:bg-gray-50">
+                                        <td class="p-2"><input type="time" class="w-full border p-2 rounded text-sm input-keg-jam"></td>
+                                        <td class="p-2"><input type="text" class="w-full border p-2 rounded text-sm input-keg-uraian" placeholder="Deskripsi kegiatan..."></td>
+                                        <td class="p-2 text-center">
+                                            <button onclick="removeRow(this)" class="text-red-500 hover:text-red-700">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p class="text-xs text-gray-400 mt-2 md:hidden">*Geser ke samping untuk melihat tabel lengkap</p>
+                        </div>
+                    </div>
+
+                    <!-- CARD 4: TANDA TANGAN -->
+                    <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-8 border-t-4 border-indigo-600">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">4. Serah Terima</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Yang Menyerahkan</label>
+                                <input type="text" id="inputMenyerahkan" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2" placeholder="Nama & Jabatan">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Yang Menerima</label>
+                                <input type="text" id="inputMenerima" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2" placeholder="Nama & Jabatan">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+
+            <!-- ACTION BUTTON (Fixed Bottom) -->
+            <div class="absolute bottom-6 right-6 z-30">
+                <button onclick="generatePDF()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 md:py-4 md:px-8 rounded-full shadow-lg transform transition hover:scale-105 flex items-center gap-2">
+                    <i class="fas fa-file-pdf text-xl"></i>
+                    <span class="hidden md:inline">GENERATE PDF</span>
+                    <span class="md:hidden">PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TEMPLATE PDF (SAMA SEPERTI SEBELUMNYA) -->
+    <div id="pdf-template">
+        <div style="text-align: center; margin-bottom: 20px; border-bottom: 3px double black; padding-bottom: 10px;">
+            <h2 style="margin: 0; font-size: 18pt; font-weight: bold; text-transform: uppercase;">LAPORAN MUTASI PENJAGAAN</h2>
+            <p style="margin: 5px 0 0 0; font-size: 12pt;">PERIODE: <span id="pdf-periode"></span></p>
+        </div>
+
+        <table style="width: 100%; margin-bottom: 20px; font-size: 11pt;">
+            <tr>
+                <td style="width: 150px; font-weight: bold;">Hari / Tanggal</td>
+                <td>: <span id="pdf-hari"></span>, <span id="pdf-tanggal"></span></td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold;">Dinas</td>
+                <td>: <span id="pdf-dinas"></span></td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold;">Waktu</td>
+                <td>: <span id="pdf-jam"></span></td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold;">Kajaga</td>
+                <td>: <span id="pdf-kajaga"></span></td>
+            </tr>
+        </table>
+
+        <div style="margin-bottom: 20px;">
+            <h3 style="border-bottom: 1px solid black; padding-bottom: 5px; margin-bottom: 10px; font-size: 12pt;">I. PERSONEL YANG BERTUGAS</h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 11pt;">
+                <thead>
+                    <tr style="background-color: #f0f0f0;">
+                        <th style="border: 1px solid black; padding: 5px; width: 50px;">No</th>
+                        <th style="border: 1px solid black; padding: 5px;">Nama</th>
+                        <th style="border: 1px solid black; padding: 5px;">Jabatan</th>
+                    </tr>
+                </thead>
+                <tbody id="pdf-personel-body"></tbody>
+            </table>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <h3 style="border-bottom: 1px solid black; padding-bottom: 5px; margin-bottom: 10px; font-size: 12pt;">II. URAIAN KEGIATAN</h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 11pt;">
+                <thead>
+                    <tr style="background-color: #f0f0f0;">
+                        <th style="border: 1px solid black; padding: 5px; width: 100px;">Jam</th>
+                        <th style="border: 1px solid black; padding: 5px;">Kegiatan</th>
+                    </tr>
+                </thead>
+                <tbody id="pdf-kegiatan-body"></tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 40px; display: flex; justify-content: space-between; page-break-inside: avoid;">
+            <div style="text-align: center; width: 40%;">
+                <p>Yang Menyerahkan,</p>
+                <br><br><br>
+                <p style="font-weight: bold; text-decoration: underline;" id="pdf-menyerahkan">......................</p>
+            </div>
+            <div style="text-align: center; width: 40%;">
+                <p>Yang Menerima,</p>
+                <br><br><br>
+                <p style="font-weight: bold; text-decoration: underline;" id="pdf-menerima">......................</p>
+            </div>
+        </div>
+        
+        <div style="margin-top: 50px; font-size: 9pt; text-align: center; color: #555;">
+            <p>Dicetak otomatis oleh Sistem Laporan Mutasi pada <span id="pdf-cetak-time"></span></p>
+        </div>
+    </div>
+
+    <script>
+        function addPersonnelRow() {
+            const container = document.getElementById('personnel-container');
+            const div = document.createElement('div');
+            div.className = 'flex flex-col md:flex-row gap-4 items-end personnel-row animate-pulse';
+            setTimeout(() => div.classList.remove('animate-pulse'), 500);
+            
+            div.innerHTML = `
+                <div class="flex-1 w-full">
+                    <label class="block text-xs font-medium text-gray-500">Nama</label>
+                    <input type="text" class="w-full border p-2 rounded text-sm input-nama" placeholder="Nama Personel">
+                </div>
+                <div class="flex-1 w-full">
+                    <label class="block text-xs font-medium text-gray-500">Jabatan</label>
+                    <input type="text" class="w-full border p-2 rounded text-sm input-jabatan" placeholder="Jabatan">
+                </div>
+                <button onclick="removeRow(this)" class="bg-red-100 text-red-600 hover:bg-red-200 p-2 rounded w-full md:w-auto mb-[2px]">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            container.appendChild(div);
+        }
+
+        function addActivityRow() {
+            const container = document.getElementById('activity-container');
+            const tr = document.createElement('tr');
+            tr.className = 'activity-row border-b hover:bg-gray-50 animate-pulse';
+            setTimeout(() => tr.classList.remove('animate-pulse'), 500);
+
+            tr.innerHTML = `
+                <td class="p-2"><input type="time" class="w-full border p-2 rounded text-sm input-keg-jam"></td>
+                <td class="p-2"><input type="text" class="w-full border p-2 rounded text-sm input-keg-uraian" placeholder="Deskripsi kegiatan..."></td>
+                <td class="p-2 text-center">
+                    <button onclick="removeRow(this)" class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </td>
+            `;
+            container.appendChild(tr);
+        }
+
+        function removeRow(btn) {
+            const parent = btn.closest('.personnel-row') || btn.closest('.activity-row');
+            const container = parent.parentElement;
+            if (container.children.length > 1) {
+                parent.remove();
+            } else {
+                const inputs = parent.querySelectorAll('input');
+                inputs.forEach(input => input.value = '');
+            }
+        }
+
+        function generatePDF() {
+            const hari = document.getElementById('inputHari').value || '__________';
+            const tanggal = document.getElementById('inputTanggal').value || '__________';
+            const dinas = document.getElementById('inputDinas').value;
+            const kajaga = document.getElementById('inputKajaga').value || '__________________';
+            const jamMulai = document.getElementById('inputJamMulai').value;
+            const jamSelesai = document.getElementById('inputJamSelesai').value;
+            const menyerah = document.getElementById('inputMenyerahkan').value || '__________________';
+            const menerima = document.getElementById('inputMenerima').value || '__________________';
+
+            const jamRange = `${jamMulai || '--:--'} s/d ${jamSelesai || '--:--'}`;
+
+            document.getElementById('pdf-periode').innerText = `${dinas.toUpperCase()} - ${new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long' })}`;
+            document.getElementById('pdf-hari').innerText = hari;
+            document.getElementById('pdf-tanggal').innerText = tanggal;
+            document.getElementById('pdf-dinas').innerText = dinas;
+            document.getElementById('pdf-jam').innerText = jamRange;
+            document.getElementById('pdf-kajaga').innerText = kajaga;
+            document.getElementById('pdf-menyerahkan').innerText = menyerah;
+            document.getElementById('pdf-menerima').innerText = menerima;
+            document.getElementById('pdf-cetak-time').innerText = new Date().toLocaleString('id-ID');
+
+            const personelBody = document.getElementById('pdf-personel-body');
+            personelBody.innerHTML = '';
+            const namaInputs = document.querySelectorAll('.input-nama');
+            const jabatanInputs = document.querySelectorAll('.input-jabatan');
+            
+            namaInputs.forEach((input, index) => {
+                const nama = input.value || '-';
+                const jabatan = jabatanInputs[index].value || '-';
+                const row = `<tr>
+                    <td style="border: 1px solid black; padding: 5px; text-align: center;">${index + 1}</td>
+                    <td style="border: 1px solid black; padding: 5px;">${nama}</td>
+                    <td style="border: 1px solid black; padding: 5px;">${jabatan}</td>
+                </tr>`;
+                personelBody.innerHTML += row;
+            });
+
+            const kegiatanBody = document.getElementById('pdf-kegiatan-body');
+            kegiatanBody.innerHTML = '';
+            const kegJamInputs = document.querySelectorAll('.input-keg-jam');
+            const kegUraianInputs = document.querySelectorAll('.input-keg-uraian');
+
+            kegJamInputs.forEach((input, index) => {
+                const jam = input.value || '-';
+                const uraian = kegUraianInputs[index].value || '-';
+                const row = `<tr>
+                    <td style="border: 1px solid black; padding: 5px; text-align: center;">${jam}</td>
+                    <td style="border: 1px solid black; padding: 5px;">${uraian}</td>
+                </tr>`;
+                kegiatanBody.innerHTML += row;
+            });
+
+            const element = document.getElementById('pdf-template');
+            element.style.display = 'block';
+
+            const fileName = `Laporan_Mutasi_${tanggal}_${dinas}.pdf`;
+
+            const opt = {
+                margin:       [10, 10, 10, 10],
+                filename:     fileName,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>
