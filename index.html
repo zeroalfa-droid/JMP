@@ -21,13 +21,19 @@
             width: 210mm;
             min-height: 297mm;
         }
+        /* Style untuk input readonly agar terlihat berbeda */
+        input[readonly] {
+            background-color: #f3f4f6;
+            cursor: not-allowed;
+            color: #4b5563;
+        }
     </style>
 </head>
 <body class="bg-gray-100 font-sans antialiased">
 
     <div class="flex h-screen overflow-hidden">
         
-        <!-- SIDEBAR (Hanya muncul di Layar Besar / Desktop) -->
+        <!-- SIDEBAR (Desktop Only) -->
         <aside class="hidden md:flex w-64 bg-slate-800 text-white flex-col shadow-lg flex-shrink-0">
             <div class="p-6 text-center border-b border-slate-700">
                 <h1 class="text-xl font-bold tracking-wider">E-REPORT</h1>
@@ -47,7 +53,7 @@
         <!-- MAIN CONTENT WRAPPER -->
         <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
             
-            <!-- MOBILE HEADER (Hanya muncul di HP) -->
+            <!-- MOBILE HEADER -->
             <header class="md:hidden bg-slate-800 text-white p-4 flex justify-between items-center shadow-md z-20">
                 <div class="font-bold text-lg">E-REPORT</div>
                 <div class="text-xs bg-slate-700 px-2 py-1 rounded">Mutasi Penjagaan</div>
@@ -61,37 +67,39 @@
                         <p class="text-gray-600 text-sm md:text-base">Isi data di bawah ini untuk menghasilkan laporan PDF.</p>
                     </header>
 
-                    <!-- CARD 1: DATA UMUM -->
+                    <!-- CARD 1: INFORMASI SHIFT (UPDATED) -->
                     <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6 border-t-4 border-blue-600">
-                        <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">1. Informasi Dasar</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Hari</label>
-                                <input type="text" id="inputHari" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-500 focus:ring-blue-500" placeholder="Contoh: Senin">
-                            </div>
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">INFORMASI SHIFT</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Tanggal -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Tanggal</label>
                                 <input type="date" id="inputTanggal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-500 focus:ring-blue-500">
                             </div>
+                            <!-- Hari (Autofill) -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Dinas</label>
+                                <label class="block text-sm font-medium text-gray-700">Hari <span class="text-xs text-gray-500">(Otomatis)</span></label>
+                                <input type="text" id="inputHari" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 bg-gray-100" readonly placeholder="Pilih tanggal...">
+                            </div>
+                            <!-- Dinas (Shift) -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Shift</label>
                                 <select id="inputDinas" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-500 focus:ring-blue-500">
-                                    <option value="Pagi">Pagi (08.00 - 14.00)</option>
-                                    <option value="Siang">Siang (14.00 - 20.00)</option>
-                                    <option value="Malam">Malam (20.00 - 08.00)</option>
+                                    <option value="" disabled selected>Pilih Shift...</option>
+                                    <option value="Shift I">Shift I (06:00 - 14:00)</option>
+                                    <option value="Shift II">Shift II (14:00 - 22:00)</option>
+                                    <option value="Shift III">Shift III (22:00 - 06:00)</option>
                                 </select>
                             </div>
+                            <!-- Jam (Autofill) -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Waktu Shift <span class="text-xs text-gray-500">(Otomatis)</span></label>
+                                <input type="text" id="inputJam" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 bg-gray-100" readonly placeholder="Pilih shift...">
+                            </div>
+                            <!-- Kajaga -->
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700">Kajaga (Kepala Penjaga)</label>
                                 <input type="text" id="inputKajaga" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2" placeholder="Nama Kajaga">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Jam Mulai - Selesai</label>
-                                <div class="flex gap-2">
-                                    <input type="time" id="inputJamMulai" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
-                                    <span class="self-center text-gray-500">s/d</span>
-                                    <input type="time" id="inputJamSelesai" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -172,7 +180,7 @@
                 </div>
             </main>
 
-            <!-- ACTION BUTTON (Fixed Bottom) -->
+            <!-- ACTION BUTTON -->
             <div class="absolute bottom-6 right-6 z-30">
                 <button onclick="generatePDF()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 md:py-4 md:px-8 rounded-full shadow-lg transform transition hover:scale-105 flex items-center gap-2">
                     <i class="fas fa-file-pdf text-xl"></i>
@@ -183,7 +191,7 @@
         </div>
     </div>
 
-    <!-- TEMPLATE PDF (SAMA SEPERTI SEBELUMNYA) -->
+    <!-- TEMPLATE PDF -->
     <div id="pdf-template">
         <div style="text-align: center; margin-bottom: 20px; border-bottom: 3px double black; padding-bottom: 10px;">
             <h2 style="margin: 0; font-size: 18pt; font-weight: bold; text-transform: uppercase;">LAPORAN MUTASI PENJAGAAN</h2>
@@ -196,7 +204,7 @@
                 <td>: <span id="pdf-hari"></span>, <span id="pdf-tanggal"></span></td>
             </tr>
             <tr>
-                <td style="font-weight: bold;">Dinas</td>
+                <td style="font-weight: bold;">Shift</td>
                 <td>: <span id="pdf-dinas"></span></td>
             </tr>
             <tr>
@@ -255,6 +263,43 @@
     </div>
 
     <script>
+        // --- LOGIC AUTOFILL ---
+        
+        // 1. Autofill Hari berdasarkan Tanggal
+        const dateInput = document.getElementById('inputTanggal');
+        const dayInput = document.getElementById('inputHari');
+        const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+        dateInput.addEventListener('change', function() {
+            if(this.value) {
+                // Parse date manually to avoid timezone issues
+                const parts = this.value.split('-');
+                const date = new Date(parts[0], parts[1] - 1, parts[2]);
+                dayInput.value = days[date.getDay()];
+            } else {
+                dayInput.value = '';
+            }
+        });
+
+        // 2. Autofill Jam berdasarkan Shift
+        const shiftInput = document.getElementById('inputDinas');
+        const jamInput = document.getElementById('inputJam');
+        const shiftTimes = {
+            'Shift I': '06:00 - 14:00',
+            'Shift II': '14:00 - 22:00',
+            'Shift III': '22:00 - 06:00'
+        };
+
+        shiftInput.addEventListener('change', function() {
+            if(this.value && shiftTimes[this.value]) {
+                jamInput.value = shiftTimes[this.value];
+            } else {
+                jamInput.value = '';
+            }
+        });
+
+        // --- LOGIC DINAMIS INPUT ---
+
         function addPersonnelRow() {
             const container = document.getElementById('personnel-container');
             const div = document.createElement('div');
@@ -306,28 +351,30 @@
             }
         }
 
+        // --- LOGIC GENERATE PDF ---
+
         function generatePDF() {
+            // 1. Ambil Data
             const hari = document.getElementById('inputHari').value || '__________';
             const tanggal = document.getElementById('inputTanggal').value || '__________';
-            const dinas = document.getElementById('inputDinas').value;
+            const dinas = document.getElementById('inputDinas').value || '__________';
             const kajaga = document.getElementById('inputKajaga').value || '__________________';
-            const jamMulai = document.getElementById('inputJamMulai').value;
-            const jamSelesai = document.getElementById('inputJamSelesai').value;
+            const jam = document.getElementById('inputJam').value || '__________';
             const menyerah = document.getElementById('inputMenyerahkan').value || '__________________';
             const menerima = document.getElementById('inputMenerima').value || '__________________';
 
-            const jamRange = `${jamMulai || '--:--'} s/d ${jamSelesai || '--:--'}`;
-
+            // 2. Isi Template PDF
             document.getElementById('pdf-periode').innerText = `${dinas.toUpperCase()} - ${new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long' })}`;
             document.getElementById('pdf-hari').innerText = hari;
             document.getElementById('pdf-tanggal').innerText = tanggal;
             document.getElementById('pdf-dinas').innerText = dinas;
-            document.getElementById('pdf-jam').innerText = jamRange;
+            document.getElementById('pdf-jam').innerText = jam; // Menggunakan input jam gabungan
             document.getElementById('pdf-kajaga').innerText = kajaga;
             document.getElementById('pdf-menyerahkan').innerText = menyerah;
             document.getElementById('pdf-menerima').innerText = menerima;
             document.getElementById('pdf-cetak-time').innerText = new Date().toLocaleString('id-ID');
 
+            // Personel
             const personelBody = document.getElementById('pdf-personel-body');
             personelBody.innerHTML = '';
             const namaInputs = document.querySelectorAll('.input-nama');
@@ -344,21 +391,23 @@
                 personelBody.innerHTML += row;
             });
 
+            // Kegiatan
             const kegiatanBody = document.getElementById('pdf-kegiatan-body');
             kegiatanBody.innerHTML = '';
             const kegJamInputs = document.querySelectorAll('.input-keg-jam');
             const kegUraianInputs = document.querySelectorAll('.input-keg-uraian');
 
             kegJamInputs.forEach((input, index) => {
-                const jam = input.value || '-';
+                const jamKeg = input.value || '-';
                 const uraian = kegUraianInputs[index].value || '-';
                 const row = `<tr>
-                    <td style="border: 1px solid black; padding: 5px; text-align: center;">${jam}</td>
+                    <td style="border: 1px solid black; padding: 5px; text-align: center;">${jamKeg}</td>
                     <td style="border: 1px solid black; padding: 5px;">${uraian}</td>
                 </tr>`;
                 kegiatanBody.innerHTML += row;
             });
 
+            // 3. Generate
             const element = document.getElementById('pdf-template');
             element.style.display = 'block';
 
