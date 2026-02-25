@@ -508,10 +508,10 @@
 
             chartShiftInstance = new Chart(ctx.getContext('2d'), {
                 type: 'doughnut',
-                 {
+                data: {
                     labels: ['Shift I', 'Shift II', 'Shift III'],
                     datasets: [{
-                         [shiftCount['Shift I'], shiftCount['Shift II'], shiftCount['Shift III']],
+                        data: [shiftCount['Shift I'], shiftCount['Shift II'], shiftCount['Shift III']],
                         backgroundColor: ['#f97316', '#6366f1', '#4f46e5'],
                         borderWidth: 0
                     }]
@@ -657,7 +657,6 @@
         function addPersonnelRow() {
             const container = document.getElementById('personnel-container');
             
-            // Limit to 4 personnel
             if(container.children.length >= 4) {
                 alert('Maksimal 4 personel!');
                 return;
@@ -670,7 +669,7 @@
             div.innerHTML = `
                 <div class="flex-1 w-full">
                     <label class="block text-xs font-medium text-gray-500">Nama</label>
-                    <input type="text" class="w-full border p-2 rounded text-sm input-nama" placeholder="Nama Personel">
+                    <input type="text" class="w-full border p-2 rounded text-sm input-nama" placeholder="Nama Personel" oninput="updateKajagaFromFirstPersonel()">
                 </div>
                 <div class="flex-1 w-full">
                     <label class="block text-xs font-medium text-gray-500">Jabatan</label>
@@ -771,11 +770,9 @@
             const menyerah = document.getElementById('inputMenyerahkan').value || '__________________';
             const menerima = document.getElementById('inputMenerima').value || '__________________';
 
-            // Format tanggal untuk PDF
             const tanggalParts = tanggal.split('-');
             const formattedTanggal = tanggalParts[2] + '/' + tanggalParts[1] + '/' + tanggalParts[0];
 
-            // Personel
             const personel = [];
             document.querySelectorAll('.input-nama').forEach((input, index) => {
                 personel.push({
@@ -784,7 +781,6 @@
                 });
             });
 
-            // Inventaris
             const inventaris = [];
             document.querySelectorAll('.input-inv-nama').forEach((input, index) => {
                 inventaris.push({
@@ -794,7 +790,6 @@
                 });
             });
 
-            // Kegiatan
             const kegiatan = [];
             document.querySelectorAll('.input-keg-jam').forEach((input, index) => {
                 kegiatan.push({
@@ -817,7 +812,6 @@
                 localStorage.setItem('laporanMutasi', JSON.stringify(laporanData));
             }
 
-            // Fill PDF Template
             document.getElementById('pdf-hari-tanggal').innerText = hari + ', ' + formattedTanggal;
             document.getElementById('pdf-kajaga').innerText = kajaga;
             document.getElementById('pdf-dinas').innerText = dinas;
@@ -826,7 +820,6 @@
             document.getElementById('pdf-menerima').innerText = '( ' + menerima + ' )';
             document.getElementById('pdf-lokasi-tanggal').innerText = 'PJT I , ' + formattedTanggal;
 
-            // Personel Table
             const personelBody = document.getElementById('pdf-personel-body');
             personelBody.innerHTML = '';
             personel.forEach((p, index) => {
@@ -839,7 +832,6 @@
                 personelBody.innerHTML += row;
             });
 
-            // Inventaris Table
             const inventarisBody = document.getElementById('pdf-inventaris-body');
             inventarisBody.innerHTML = '';
             inventaris.forEach((inv, index) => {
@@ -852,7 +844,6 @@
                 inventarisBody.innerHTML += row;
             });
 
-            // Kegiatan Table
             const kegiatanBody = document.getElementById('pdf-kegiatan-body');
             kegiatanBody.innerHTML = '';
             kegiatan.forEach((k, index) => {
@@ -882,7 +873,6 @@
             });
         }
 
-        // Load dashboard on page load
         window.addEventListener('load', function() {
             loadDashboardData();
         });
