@@ -18,11 +18,11 @@
         #pdf-template {
             display: none;
             background: white;
-            padding: 10mm;
+            padding: 15mm;
             width: 210mm;
             min-height: 297mm;
             font-family: Arial, sans-serif;
-            font-size: 10pt;
+            font-size: 11pt;
         }
         input[readonly] {
             background-color: #f3f4f6;
@@ -391,37 +391,46 @@
 
     <!-- PDF TEMPLATE (EXACT MATCH WITH UPLOADED PDF) -->
     <div id="pdf-template">
-        <!-- Header Title -->
-        <div style="text-align: center; margin-bottom: 8px;">
-            <h1 style="margin: 0; font-size: 14pt; font-weight: bold; text-transform: uppercase; font-family: Arial, sans-serif;">MUTASI PENJAGAAN</h1>
-            <h2 style="margin: 3px 0 0 0; font-size: 11pt; font-weight: bold; font-family: Arial, sans-serif; text-decoration: underline;">SATPAM PERUM JASA TIRTA I</h2>
+        <!-- Header with Logos -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="width: 80px; text-align: center;">
+                <div style="width: 60px; height: 60px; margin: 0 auto; background: linear-gradient(135deg, #1e40af 0%, #06b6d4 100%); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);"></div>
+                <p style="font-size: 9pt; font-weight: bold; margin: 5px 0 0 0; font-family: Arial, sans-serif; color: #666;">JASA TIRTA I</p>
+            </div>
+            <div style="text-align: center; flex: 1;">
+                <h1 style="margin: 0; font-size: 14pt; font-weight: bold; text-transform: uppercase; font-family: Arial, sans-serif;">MUTASI PENJAGAAN</h1>
+                <h2 style="margin: 5px 0 0 0; font-size: 12pt; font-weight: bold; font-family: Arial, sans-serif; text-decoration: underline;">SATPAM PERUM JASA TIRTA I</h2>
+            </div>
+            <div style="width: 80px; text-align: center;">
+                <div style="width: 60px; height: 60px; margin: 0 auto; background: linear-gradient(135deg, #4b5563 0%, #1e40af 100%); border-radius: 50% 50% 5px 5px; border: 2px solid #1e40af;"></div>
+            </div>
         </div>
 
         <!-- Info Section (Colons Aligned) -->
-        <div style="margin-bottom: 8px; font-family: Arial, sans-serif; font-size: 10pt;">
+        <div style="margin-bottom: 10px; font-family: Arial, sans-serif; font-size: 11pt;">
             <table style="width: 100%; border-collapse: collapse;">
                 <tr>
                     <td style="width: 50%; vertical-align: top;">
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr>
-                                <td style="width: 130px; padding: 1px 0;"><strong>HARI / TANGGAL :</strong></td>
-                                <td style="padding: 1px 0;"><span id="pdf-hari-tanggal"></span></td>
+                                <td style="width: 140px; padding: 2px 0;"><strong>HARI / TANGGAL :</strong></td>
+                                <td style="padding: 2px 0;"><span id="pdf-hari-tanggal"></span></td>
                             </tr>
                             <tr>
-                                <td style="width: 130px; padding: 1px 0;"><strong>DINAS :</strong></td>
-                                <td style="padding: 1px 0;"><span id="pdf-dinas"></span></td>
+                                <td style="width: 140px; padding: 2px 0;"><strong>DINAS :</strong></td>
+                                <td style="padding: 2px 0;"><span id="pdf-dinas"></span></td>
                             </tr>
                         </table>
                     </td>
                     <td style="width: 50%; vertical-align: top;">
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr>
-                                <td style="width: 80px; padding: 1px 0;"><strong>KAJAGA :</strong></td>
-                                <td style="padding: 1px 0;"><span id="pdf-kajaga"></span></td>
+                                <td style="width: 80px; padding: 2px 0;"><strong>KAJAGA :</strong></td>
+                                <td style="padding: 2px 0;"><span id="pdf-kajaga"></span></td>
                             </tr>
                             <tr>
-                                <td style="width: 80px; padding: 1px 0;"><strong>JAM :</strong></td>
-                                <td style="padding: 1px 0;"><span id="pdf-jam"></span></td>
+                                <td style="width: 80px; padding: 2px 0;"><strong>JAM :</strong></td>
+                                <td style="padding: 2px 0;"><span id="pdf-jam"></span></td>
                             </tr>
                         </table>
                     </td>
@@ -430,14 +439,14 @@
         </div>
 
         <!-- Tabel Personel -->
-        <div style="margin-bottom: 8px;">
-            <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 10pt;">
+        <div style="margin-bottom: 10px;">
+            <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11pt;">
                 <thead>
                     <tr>
-                        <th style="border: 1px solid black; padding: 3px 5px; width: 35px; text-align: center; font-weight: bold;">NO</th>
-                        <th style="border: 1px solid black; padding: 3px 5px; text-align: center; font-weight: bold;">NAMA</th>
-                        <th style="border: 1px solid black; padding: 3px 5px; width: 120px; text-align: center; font-weight: bold;">JABATAN</th>
-                        <th style="border: 1px solid black; padding: 3px 5px; width: 100px; text-align: center; font-weight: bold;">TANDA TANGAN</th>
+                        <th style="border: 2px solid black; padding: 5px; width: 40px; text-align: center; font-weight: bold;">NO</th>
+                        <th style="border: 2px solid black; padding: 5px; text-align: center; font-weight: bold;">NAMA</th>
+                        <th style="border: 2px solid black; padding: 5px; width: 150px; text-align: center; font-weight: bold;">JABATAN</th>
+                        <th style="border: 2px solid black; padding: 5px; width: 120px; text-align: center; font-weight: bold;">TANDA TANGAN</th>
                     </tr>
                 </thead>
                 <tbody id="pdf-personel-body"></tbody>
@@ -445,17 +454,17 @@
         </div>
 
         <!-- Inventaris Pos -->
-        <div style="margin-bottom: 8px;">
-            <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 10pt;">
+        <div style="margin-bottom: 10px;">
+            <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11pt;">
                 <thead>
                     <tr>
-                        <th colspan="4" style="border: 1px solid black; padding: 3px 5px; text-align: center; font-weight: bold;">INVENTARIS POS</th>
+                        <th colspan="4" style="border: 2px solid black; padding: 5px; text-align: center; font-weight: bold;">INVENTARIS POS</th>
                     </tr>
                     <tr>
-                        <th style="border: 1px solid black; padding: 3px 5px; width: 35px; text-align: center; font-weight: bold;">NO</th>
-                        <th style="border: 1px solid black; padding: 3px 5px; text-align: center; font-weight: bold;">NAMA BARANG</th>
-                        <th style="border: 1px solid black; padding: 3px 5px; width: 50px; text-align: center; font-weight: bold;">JUMLAH</th>
-                        <th style="border: 1px solid black; padding: 3px 5px; width: 70px; text-align: center; font-weight: bold;">KONDISI</th>
+                        <th style="border: 2px solid black; padding: 5px; width: 40px; text-align: center; font-weight: bold;">NO</th>
+                        <th style="border: 2px solid black; padding: 5px; text-align: center; font-weight: bold;">NAMA BARANG</th>
+                        <th style="border: 2px solid black; padding: 5px; width: 60px; text-align: center; font-weight: bold;">JUMLAH</th>
+                        <th style="border: 2px solid black; padding: 5px; width: 80px; text-align: center; font-weight: bold;">KONDISI</th>
                     </tr>
                 </thead>
                 <tbody id="pdf-inventaris-body"></tbody>
@@ -463,13 +472,13 @@
         </div>
 
         <!-- Tabel Kegiatan -->
-        <div style="margin-bottom: 8px;">
-            <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 10pt;">
+        <div style="margin-bottom: 10px;">
+            <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11pt;">
                 <thead>
                     <tr>
-                        <th style="border: 1px solid black; padding: 3px 5px; width: 35px; text-align: center; font-weight: bold;">NO</th>
-                        <th style="border: 1px solid black; padding: 3px 5px; width: 50px; text-align: center; font-weight: bold;">JAM</th>
-                        <th style="border: 1px solid black; padding: 3px 5px; text-align: center; font-weight: bold;">URAIAN KEGIATAN</th>
+                        <th style="border: 2px solid black; padding: 5px; width: 40px; text-align: center; font-weight: bold;">NO</th>
+                        <th style="border: 2px solid black; padding: 5px; width: 60px; text-align: center; font-weight: bold;">JAM</th>
+                        <th style="border: 2px solid black; padding: 5px; text-align: center; font-weight: bold;">URAIAN KEGIATAN</th>
                     </tr>
                 </thead>
                 <tbody id="pdf-kegiatan-body"></tbody>
@@ -477,14 +486,14 @@
         </div>
 
         <!-- Footer Signature -->
-        <div style="margin-top: 10px; display: flex; justify-content: space-between; page-break-inside: avoid; font-family: Arial, sans-serif; font-size: 10pt;">
+        <div style="margin-top: 15px; display: flex; justify-content: space-between; page-break-inside: avoid; font-family: Arial, sans-serif; font-size: 11pt;">
             <div style="text-align: left; width: 45%;">
                 <p style="margin: 0; font-weight: bold;">YANG MENERIMA</p>
                 <br><br><br>
                 <p style="margin: 0; font-weight: bold;" id="pdf-menerima">( ...................... )</p>
             </div>
             <div style="text-align: right; width: 45%;">
-                <p style="margin: 0 0 3px 0;" id="pdf-lokasi-tanggal"></p>
+                <p style="margin: 0 0 5px 0;" id="pdf-lokasi-tanggal"></p>
                 <p style="margin: 0 0 0 0; font-weight: bold;">YANG MENYERAHKAN</p>
                 <br><br><br>
                 <p style="margin: 0; font-weight: bold;" id="pdf-menyerahkan">( ...................... )</p>
@@ -880,15 +889,15 @@
             document.getElementById('pdf-lokasi-tanggal').innerText = 'PJT I, ' + formattedTanggal;
 
             document.getElementById('pdf-personel-body').innerHTML = personel.map((p, i) => 
-                `<tr><td style="border:1px solid black;padding:3px 5px;text-align:center;">${i+1}</td><td style="border:1px solid black;padding:3px 5px;">${p.nama}</td><td style="border:1px solid black;padding:3px 5px;text-align:center;">${p.jabatan}</td><td style="border:1px solid black;padding:3px 5px;"></td></tr>`
+                `<tr><td style="border:2px solid black;padding:5px;text-align:center;">${i+1}</td><td style="border:2px solid black;padding:5px;">${p.nama}</td><td style="border:2px solid black;padding:5px;text-align:center;">${p.jabatan}</td><td style="border:2px solid black;padding:5px;"></td></tr>`
             ).join('');
 
             document.getElementById('pdf-inventaris-body').innerHTML = dataInventaris.map((inv, i) => 
-                `<tr><td style="border:1px solid black;padding:3px 5px;text-align:center;">${i+1}</td><td style="border:1px solid black;padding:3px 5px;">${inv.nama}</td><td style="border:1px solid black;padding:3px 5px;text-align:center;">${inv.jumlah}</td><td style="border:1px solid black;padding:3px 5px;text-align:center;">${inv.kondisi}</td></tr>`
+                `<tr><td style="border:2px solid black;padding:5px;text-align:center;">${i+1}</td><td style="border:2px solid black;padding:5px;">${inv.nama}</td><td style="border:2px solid black;padding:5px;text-align:center;">${inv.jumlah}</td><td style="border:2px solid black;padding:5px;text-align:center;">${inv.kondisi}</td></tr>`
             ).join('');
 
             document.getElementById('pdf-kegiatan-body').innerHTML = kegiatan.map((k, i) => 
-                `<tr><td style="border:1px solid black;padding:3px 5px;text-align:center;">${i+1}</td><td style="border:1px solid black;padding:3px 5px;text-align:center;">${k.jam}</td><td style="border:1px solid black;padding:3px 5px;">${k.uraian}</td></tr>`
+                `<tr><td style="border:2px solid black;padding:5px;text-align:center;">${i+1}</td><td style="border:2px solid black;padding:5px;text-align:center;">${k.jam}</td><td style="border:2px solid black;padding:5px;">${k.uraian}</td></tr>`
             ).join('');
 
             const element = document.getElementById('pdf-template');
