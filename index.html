@@ -573,6 +573,28 @@
         let gisInited = false;
         let accessToken = null;
 
+        // ==================== TOKEN PERSISTENCE (FIX FOR RELOAD) ====================
+        function saveToken(token) {
+            localStorage.setItem('gdrive_token', JSON.stringify({
+                access_token: token.access_token,
+                expiry_date: token.expiry_date,
+                refresh_token: token.refresh_token
+            }));
+            console.log('💾 Token saved to localStorage');
+        }
+
+        function loadToken() {
+            const saved = localStorage.getItem('gdrive_token');
+            const token = saved ? JSON.parse(saved) : null;
+            console.log('📂 Token loaded from localStorage:', token ? 'Found' : 'Not found');
+            return token;
+        }
+
+        function clearToken() {
+            localStorage.removeItem('gdrive_token');
+            console.log('🗑️ Token cleared from localStorage');
+        }
+
         // ==================== DATA PERSONEL & INVENTARIS ====================
         let dataPersonel = JSON.parse(localStorage.getItem('dataPersonel')) || [
             { nama: 'Dimas Angga P', jabatan: 'Anggota' },
@@ -614,7 +636,25 @@
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID,
                 scope: SCOPES,
-                callback: '',
+                callback: async (resp) => {
+                    if (resp.error !== undefined) {
+                        console.error('Token error:', resp);
+                        updateGoogleDriveStatus(false);
+                        return;
+                    }
+                    
+                    // Save token to localStorage
+                    saveToken({
+                        access_token: resp.access_token,
+                        expiry_date: resp.expires_at,
+                        refresh_token: resp.refresh_token
+                    });
+                    
+                    accessToken = resp.access_token;
+                    gapi.client.setToken({ access_token: resp.access_token });
+                    updateGoogleDriveStatus(true);
+                    console.log('✅ Token saved successfully');
+                },
             });
             gisInited = true;
             checkAuth();
@@ -622,10 +662,28 @@
 
         function checkAuth() {
             if (gapiInited && gisInited) {
-                const token = gapi.client.getToken();
-                if (token !== null) {
-                    accessToken = token.access_token;
-                    updateGoogleDriveStatus(true);
+                // Try to load saved token
+                const savedToken = loadToken();
+                
+                if (savedToken && savedToken.access_token) {
+                    // Check if token is expired
+                    const now = new Date().getTime();
+                    const expiryDate = savedToken.expiry_date || 0;
+                    
+                    if (expiryDate > now) {
+                        // Token still valid
+                        gapi.client.setToken({ access_token: savedToken.access_token });
+                        accessToken = savedToken.access_token;
+                        updateGoogleDriveStatus(true);
+                        console.log('✅ Token loaded from storage - Still valid');
+                    } else {
+                        // Token expired, need re-auth
+                        console.log('⚠️ Token expired, need re-auth');
+                        updateGoogleDriveStatus(false);
+                        clearToken();
+                    }
+                } else {
+                    updateGoogleDriveStatus(false);
                 }
             }
         }
@@ -636,10 +694,21 @@
                     alert('Authentication failed: ' + resp.error);
                     return;
                 }
-                accessToken = gapi.client.getToken().access_token;
+                
+                // Save token
+                saveToken({
+                    access_token: resp.access_token,
+                    expiry_date: resp.expires_at,
+                    refresh_token: resp.refresh_token
+                });
+                
+                accessToken = resp.access_token;
+                gapi.client.setToken({ access_token: resp.access_token });
                 updateGoogleDriveStatus(true);
-                alert('✅ Google Drive connected successfully!');
+                alert('✅ Google Drive connected successfully!\n\nToken akan tetap tersimpan meskipun halaman di-reload.');
             };
+            
+            // Force new token request
             tokenClient.requestAccessToken({ prompt: 'consent' });
         }
 
@@ -647,11 +716,13 @@
             const token = gapi.client.getToken();
             if (token !== null) {
                 google.accounts.oauth2.revoke(token.access_token);
-                gapi.client.setToken('');
-                accessToken = null;
-                updateGoogleDriveStatus(false);
-                alert('Google Drive disconnected');
             }
+            
+            gapi.client.setToken('');
+            accessToken = null;
+            clearToken();
+            updateGoogleDriveStatus(false);
+            alert('Google Drive disconnected');
         }
 
         function updateGoogleDriveStatus(connected) {
@@ -742,7 +813,7 @@
                 };
 
                 if (gapi.client.getToken() === null) {
-                    tokenClient.requestAccessToken({ prompt: 'consent' });
+                    tokenClient.requestAccessToken({ prompt: '' });
                 } else {
                     tokenClient.requestAccessToken({ prompt: '' });
                 }
@@ -1211,6 +1282,7 @@
                 }
                 alert(message);
 
+                // Reset form
                 document.getElementById('inputTanggal').value = '';
                 document.getElementById('inputHari').value = '';
                 document.getElementById('inputDinas').value = '';
