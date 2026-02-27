@@ -1171,137 +1171,150 @@
         }
 
         // ==================== GENERATE PDF ====================
-        async function generatePDF() {
-            const hari = document.getElementById('inputHari').value || '__________';
-            const tanggal = document.getElementById('inputTanggal').value || '__________';
-            const dinas = document.getElementById('inputDinas').value || '__________';
-            const kajaga = document.getElementById('inputKajaga').value || '__________________';
-            const jam = document.getElementById('inputJam').value || '__________';
-            const menyerah = document.getElementById('inputMenyerahkan').value || '__________________';
-            const menerima = document.getElementById('inputMenerima').value || '__________________';
+async function generatePDF() {
+    const hari = document.getElementById('inputHari').value || '__________';
+    const tanggal = document.getElementById('inputTanggal').value || '__________';
+    const dinas = document.getElementById('inputDinas').value || '__________';
+    const kajaga = document.getElementById('inputKajaga').value || '__________________';
+    const jam = document.getElementById('inputJam').value || '__________';
+    const menyerah = document.getElementById('inputMenyerahkan').value || '__________________';
+    const menerima = document.getElementById('inputMenerima').value || '__________________';
 
-            if(tanggal === '__________' || dinas === '__________') {
-                alert('Tanggal dan Dinas wajib diisi!');
-                return;
-            }
+    if(tanggal === '__________' || dinas === '__________') {
+        alert('Tanggal dan Dinas wajib diisi!');
+        return;
+    }
 
-            const tanggalParts = tanggal.split('-');
-            const formattedTanggal = tanggalParts[2] + '/' + tanggalParts[1] + '/' + tanggalParts[0];
+    const tanggalParts = tanggal.split('-');
+    const formattedTanggal = tanggalParts[2] + '/' + tanggalParts[1] + '/' + tanggalParts[0];
 
-            const personel = [], kegiatan = [];
-            
-            document.querySelectorAll('.input-nama-select').forEach((select, i) => {
-                personel.push({ 
-                    nama: select.value || '-', 
-                    jabatan: select.closest('.personnel-row').querySelector('.input-jabatan')?.value || '-' 
-                });
-            });
-            document.querySelectorAll('.input-keg-jam').forEach((input, i) => {
-                const row = input.closest('.activity-row');
-                kegiatan.push({ 
-                    jam: input.value || '-', 
-                    uraian: row.querySelector('.input-keg-uraian')?.value || '-' 
-                });
-            });
+    const personel = [], kegiatan = [];
+    
+    document.querySelectorAll('.input-nama-select').forEach((select, i) => {
+        personel.push({ 
+            nama: select.value || '-', 
+            jabatan: select.closest('.personnel-row').querySelector('.input-jabatan')?.value || '-' 
+        });
+    });
+    document.querySelectorAll('.input-keg-jam').forEach((input, i) => {
+        const row = input.closest('.activity-row');
+        kegiatan.push({ 
+            jam: input.value || '-', 
+            uraian: row.querySelector('.input-keg-uraian')?.value || '-' 
+        });
+    });
 
-            // Fill PDF Template
-            document.getElementById('pdf-hari-tanggal').innerText = hari + ', ' + formattedTanggal;
-            document.getElementById('pdf-kajaga').innerText = kajaga;
-            document.getElementById('pdf-dinas').innerText = dinas;
-            document.getElementById('pdf-jam').innerText = jam;
-            document.getElementById('pdf-menyerahkan').innerText = '( ' + menyerah + ' )';
-            document.getElementById('pdf-menerima').innerText = '( ' + menerima + ' )';
-            document.getElementById('pdf-lokasi-tanggal').innerText = 'PJT I, ' + formattedTanggal;
+    // Fill PDF Template
+    document.getElementById('pdf-hari-tanggal').innerText = hari + ', ' + formattedTanggal;
+    document.getElementById('pdf-kajaga').innerText = kajaga;
+    document.getElementById('pdf-dinas').innerText = dinas;
+    document.getElementById('pdf-jam').innerText = jam;
+    document.getElementById('pdf-menyerahkan').innerText = '( ' + menyerah + ' )';
+    document.getElementById('pdf-menerima').innerText = '( ' + menerima + ' )';
+    document.getElementById('pdf-lokasi-tanggal').innerText = 'PJT I, ' + formattedTanggal;
 
-            document.getElementById('pdf-personel-body').innerHTML = personel.map((p, i) => 
-                `<tr><td style="border:1px solid black;padding:2px 4px;text-align:center;">${i+1}</td><td style="border:1px solid black;padding:2px 4px;">${p.nama}</td><td style="border:1px solid black;padding:2px 4px;text-align:center;">${p.jabatan}</td><td style="border:1px solid black;padding:2px 4px;"></td></tr>`
-            ).join('');
+    document.getElementById('pdf-personel-body').innerHTML = personel.map((p, i) => 
+        `<tr><td style="border:1px solid black;padding:2px 4px;text-align:center;">${i+1}</td><td style="border:1px solid black;padding:2px 4px;">${p.nama}</td><td style="border:1px solid black;padding:2px 4px;text-align:center;">${p.jabatan}</td><td style="border:1px solid black;padding:2px 4px;"></td></tr>`
+    ).join('');
 
-            document.getElementById('pdf-inventaris-body').innerHTML = dataInventaris.map((inv, i) => 
-                `<tr><td style="border:1px solid black;padding:2px 4px;text-align:center;">${i+1}</td><td style="border:1px solid black;padding:2px 4px;">${inv.nama}</td><td style="border:1px solid black;padding:2px 4px;text-align:center;">${inv.jumlah}</td><td style="border:1px solid black;padding:2px 4px;text-align:center;">${inv.kondisi}</td></tr>`
-            ).join('');
+    document.getElementById('pdf-inventaris-body').innerHTML = dataInventaris.map((inv, i) => 
+        `<tr><td style="border:1px solid black;padding:2px 4px;text-align:center;">${i+1}</td><td style="border:1px solid black;padding:2px 4px;">${inv.nama}</td><td style="border:1px solid black;padding:2px 4px;text-align:center;">${inv.jumlah}</td><td style="border:1px solid black;padding:2px 4px;text-align:center;">${inv.kondisi}</td></tr>`
+    ).join('');
 
-            document.getElementById('pdf-kegiatan-body').innerHTML = kegiatan.map((k, i) => 
-                `<tr><td style="border:1px solid black;padding:2px 4px;text-align:center;">${i+1}</td><td style="border:1px solid black;padding:2px 4px;text-align:center;">${k.jam}</td><td style="border:1px solid black;padding:2px 4px;">${k.uraian}</td></tr>`
-            ).join('');
+    document.getElementById('pdf-kegiatan-body').innerHTML = kegiatan.map((k, i) => 
+        `<tr><td style="border:1px solid black;padding:2px 4px;text-align:center;">${i+1}</td><td style="border:1px solid black;padding:2px 4px;text-align:center;">${k.jam}</td><td style="border:1px solid black;padding:2px 4px;">${k.uraian}</td></tr>`
+    ).join('');
 
-            const element = document.getElementById('pdf-template');
-            element.style.display = 'block';
+    const element = document.getElementById('pdf-template');
+    element.style.display = 'block';
 
-            showLoading('Generating PDF...');
+    showLoading('Generating PDF...');
 
+    try {
+        // ✅ FIXED: Use correct html2pdf API
+        const opt = {
+            margin: [0, 0, 0, 0],
+            filename: `Mutasi_${hari}_${formattedTanggal.replace(/\//g,'-')}_(${dinas}).pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', pagebreak: { mode: 'avoid-all' } }
+        };
+
+        // Generate PDF
+        const worker = html2pdf().set(opt).from(element);
+        const pdf = await worker.toPdf().get('pdf');
+        
+        // Get blob from jsPDF instance
+        const blob = await pdf.output('blob');
+        
+        // Convert blob to base64 for Google Drive upload
+        const reader = new FileReader();
+        const base64Pdf = await new Promise((resolve) => {
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+        });
+
+        const filename = `Mutasi_${hari}_${formattedTanggal.replace(/\//g,'-')}_(${dinas}).pdf`;
+
+        // Save to localStorage
+        const laporanEntry = {
+            tanggal, hari, dinas, jam, kajaga, menyerah, menerima, personel, kegiatan,
+            googleDriveUrl: '',
+            createdAt: new Date().toISOString()
+        };
+        laporanData.push(laporanEntry);
+        localStorage.setItem('laporanData', JSON.stringify(laporanData));
+
+        // Upload to Google Drive
+        let driveResult = null;
+        if(accessToken) {
             try {
-                const pdf = await html2pdf().set({
-                    margin: [0, 0, 0, 0],
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2 },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', pagebreak: { mode: 'avoid-all' } }
-                }).from(element).toBlob();
-
-                const reader = new FileReader();
-                const base64Pdf = await new Promise((resolve) => {
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.readAsDataURL(pdf);
-                });
-
-                const filename = `Mutasi_${hari}_${formattedTanggal.replace(/\//g,'-')}_(${dinas}).pdf`;
-
-                const laporanEntry = {
-                    tanggal, hari, dinas, jam, kajaga, menyerah, menerima, personel, kegiatan,
-                    googleDriveUrl: '',
-                    createdAt: new Date().toISOString()
-                };
-                laporanData.push(laporanEntry);
+                driveResult = await uploadToGoogleDrive(base64Pdf, filename);
+                
+                const lastLaporan = laporanData[laporanData.length - 1];
+                lastLaporan.googleDriveUrl = driveResult.fileUrl;
                 localStorage.setItem('laporanData', JSON.stringify(laporanData));
-
-                let driveResult = null;
-                if(accessToken) {
-                    try {
-                        driveResult = await uploadToGoogleDrive(base64Pdf, filename);
-                        
-                        const lastLaporan = laporanData[laporanData.length - 1];
-                        lastLaporan.googleDriveUrl = driveResult.fileUrl;
-                        localStorage.setItem('laporanData', JSON.stringify(laporanData));
-                        
-                        console.log('✅ Upload successful:', driveResult);
-                    } catch(driveError) {
-                        console.error('❌ Drive upload failed:', driveError);
-                        alert('⚠️ Upload ke Google Drive gagal: ' + driveError.message + '\n\nFile tetap di-download ke device Anda.');
-                    }
-                }
-
-                pdf.save(filename);
-
-                element.style.display = 'none';
-                hideLoading();
-
-                let message = '✅ PDF berhasil dibuat!\n\n📥 File di-download ke device Anda.';
-                if(driveResult && driveResult.success) {
-                    message += '\n\n☁️ Tersimpan di Google Drive:\n' + driveResult.fileUrl;
-                    message += '\n\n📁 Cek folder "My Drive" di Google Drive Anda';
-                }
-                alert(message);
-
-                // Reset form
-                document.getElementById('inputTanggal').value = '';
-                document.getElementById('inputHari').value = '';
-                document.getElementById('inputDinas').value = '';
-                document.getElementById('inputJam').value = '';
-                document.getElementById('inputKajaga').value = '';
-                document.getElementById('inputMenyerahkan').value = '';
-                document.getElementById('inputMenerima').value = '';
-                document.getElementById('personnel-container').innerHTML = '';
-                document.getElementById('activity-container').innerHTML = '';
                 
-                loadDashboardData();
-                
-            } catch(error) {
-                console.error('PDF generation error:', error);
-                element.style.display = 'none';
-                hideLoading();
-                alert('❌ Error: ' + error.message);
+                console.log('✅ Upload successful:', driveResult);
+            } catch(driveError) {
+                console.error('❌ Drive upload failed:', driveError);
+                alert('⚠️ Upload ke Google Drive gagal: ' + driveError.message + '\n\nFile tetap di-download ke device Anda.');
             }
         }
+
+        // Download to device
+        await pdf.save(filename);
+
+        element.style.display = 'none';
+        hideLoading();
+
+        let message = '✅ PDF berhasil dibuat!\n\n📥 File di-download ke device Anda.';
+        if(driveResult && driveResult.success) {
+            message += '\n\n☁️ Tersimpan di Google Drive:\n' + driveResult.fileUrl;
+            message += '\n\n📁 Cek folder "My Drive" di Google Drive Anda';
+        }
+        alert(message);
+
+        // Reset form
+        document.getElementById('inputTanggal').value = '';
+        document.getElementById('inputHari').value = '';
+        document.getElementById('inputDinas').value = '';
+        document.getElementById('inputJam').value = '';
+        document.getElementById('inputKajaga').value = '';
+        document.getElementById('inputMenyerahkan').value = '';
+        document.getElementById('inputMenerima').value = '';
+        document.getElementById('personnel-container').innerHTML = '';
+        document.getElementById('activity-container').innerHTML = '';
+        
+        loadDashboardData();
+        
+    } catch(error) {
+        console.error('PDF generation error:', error);
+        element.style.display = 'none';
+        hideLoading();
+        alert('❌ Error: ' + error.message);
+    }
+}
 
         // Initialize
         window.addEventListener('load', function() {
