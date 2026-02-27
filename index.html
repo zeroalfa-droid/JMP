@@ -1,13 +1,32 @@
-<!DOCTYPE html>
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                body {
+                  background-color: white; /* Ensure the iframe has a white background */
+                }
+
+                
+              </style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Laporan Mutasi Penjagaan</title>
+    <title>Sistem Laporan Mutasi Penjagaan - JASA TIRTA I</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Google API -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client"></script>
     
     <style>
         ::-webkit-scrollbar { width: 8px; }
@@ -31,9 +50,43 @@
         }
         .page-section { display: none; }
         .page-section.active { display: block; }
+        
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="bg-gray-100 font-sans antialiased">
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="text-center text-white">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p id="loadingText">Memproses...</p>
+        </div>
+    </div>
 
     <div class="flex h-screen overflow-hidden">
         
@@ -58,7 +111,7 @@
                 </a>
             </nav>
             <div class="p-4 border-t border-slate-700 text-xs text-center text-slate-500">
-                &copy; 2023 Web Developer Partner
+                &copy; 2023 JASA TIRTA I
             </div>
         </aside>
 
@@ -102,7 +155,7 @@
                             <div class="bg-white rounded-lg shadow-md p-4 md:p-6 border-l-4 border-green-600">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-xs font-medium text-gray-500 uppercase">Personel Aktif</p>
+                                        <p class="text-xs font-medium text-gray-500 uppercase">Personel</p>
                                         <p class="text-2xl md:text-3xl font-bold text-gray-800" id="stat-personel">0</p>
                                     </div>
                                     <div class="bg-green-100 p-3 rounded-full">
@@ -145,7 +198,7 @@
                                 </div>
                             </div>
                             <div class="bg-white rounded-lg shadow-md p-4 md:p-6">
-                                <h3 class="text-lg font-semibold text-gray-700 mb-4">Laporan Per Hari (Minggu Ini)</h3>
+                                <h3 class="text-lg font-semibold text-gray-700 mb-4">Laporan Per Hari</h3>
                                 <div class="h-64">
                                     <canvas id="chartHarian"></canvas>
                                 </div>
@@ -162,7 +215,7 @@
                                             <th class="p-3 border-b">Hari</th>
                                             <th class="p-3 border-b">Dinas</th>
                                             <th class="p-3 border-b">Kajaga</th>
-                                            <th class="p-3 border-b text-center">Status</th>
+                                            <th class="p-3 border-b text-center">File</th>
                                         </tr>
                                     </thead>
                                     <tbody id="recent-reports-body">
@@ -373,6 +426,22 @@
                                 </table>
                             </div>
                         </div>
+                        
+                        <!-- Google Drive Status -->
+                        <div class="bg-white rounded-lg shadow-md p-4 md:p-6 border-t-4 border-green-600">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">Google Drive Status</h3>
+                            <div id="gdrive-status" class="flex items-center gap-3">
+                                <span class="text-gray-500">Status: </span>
+                                <span id="gdrive-status-text" class="text-red-500">Not Connected</span>
+                                <button onclick="authenticateGoogle()" id="btn-auth-google" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm">
+                                    <i class="fab fa-google"></i> Connect Google Drive
+                                </button>
+                                <button onclick="logoutGoogle()" id="btn-logout-google" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-sm" style="display:none;">
+                                    Disconnect
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-2">PDF akan otomatis tersimpan ke Google Drive setelah generate</p>
+                        </div>
                     </div>
                 </div>
 
@@ -389,25 +458,16 @@
         </div>
     </div>
 
-    <!-- PDF TEMPLATE (UPDATED) -->
+    <!-- PDF TEMPLATE (Exact Match dengan PDF Asli) -->
     <div id="pdf-template">
-        <!-- Header with Logos -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-            <div style="width: 70px; text-align: center;">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Logo_Perum_Jasa_Tirta_I.png/1200px-Logo_Perum_Jasa_Tirta_I.png" alt="Jasa Tirta I" style="width: 50px; height: 50px; object-fit: contain;">
-                <p style="font-size: 8pt; font-weight: bold; margin: 3px 0 0 0; font-family: Arial, sans-serif; color: #666;">JASA TIRTA I</p>
-            </div>
-            <div style="text-align: center; flex: 1;">
-                <h1 style="margin: 0; font-size: 14pt; font-weight: bold; text-transform: uppercase; font-family: Arial, sans-serif;">MUTASI PENJAGAAN</h1>
-                <h2 style="margin: 3px 0 0 0; font-size: 16pt; font-weight: bold; font-family: Arial, sans-serif; text-decoration: underline;">SATPAM PERUM JASA TIRTA I</h2>
-            </div>
-            <div style="width: 70px; text-align: center;">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Polri_badge.svg/1200px-Polri_badge.svg.png" alt="Satpam" style="width: 50px; height: 50px; object-fit: contain;">
-            </div>
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 10px;">
+            <h1 style="margin: 0; font-size: 14pt; font-weight: bold; text-transform: uppercase; font-family: Arial, sans-serif;">MUTASI PENJAGAAN</h1>
+            <h2 style="margin: 3px 0 0 0; font-size: 16pt; font-weight: bold; font-family: Arial, sans-serif; text-decoration: underline;">SATPAM PERUM JASA TIRTA I</h2>
         </div>
 
-        <!-- Info Section (Colons Aligned) -->
-        <div style="margin-bottom: 8px; font-family: Arial, sans-serif; font-size: 11pt;">
+        <!-- Info Section -->
+        <div style="margin-bottom: 10px; font-family: Arial, sans-serif; font-size: 11pt;">
             <table style="width: 100%; border-collapse: collapse;">
                 <tr>
                     <td style="width: 50%; vertical-align: top;">
@@ -439,7 +499,7 @@
         </div>
 
         <!-- Tabel Personel -->
-        <div style="margin-bottom: 8px;">
+        <div style="margin-bottom: 10px;">
             <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 10pt;">
                 <thead>
                     <tr>
@@ -454,7 +514,7 @@
         </div>
 
         <!-- Inventaris Pos -->
-        <div style="margin-bottom: 8px;">
+        <div style="margin-bottom: 10px;">
             <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 10pt;">
                 <thead>
                     <tr>
@@ -472,7 +532,7 @@
         </div>
 
         <!-- Tabel Kegiatan -->
-        <div style="margin-bottom: 8px;">
+        <div style="margin-bottom: 10px;">
             <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 10pt;">
                 <thead>
                     <tr>
@@ -502,6 +562,18 @@
     </div>
 
     <script>
+        // ==================== GOOGLE DRIVE CONFIG ====================
+        // ⚠️ GANTI DENGAN CLIENT ID ANDA DARI GOOGLE CLOUD CONSOLE
+        const CLIENT_ID = 'YOUR_CLIENT_ID_HERE.apps.googleusercontent.com';
+        const API_KEY = 'YOUR_API_KEY_HERE';
+        const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
+        const SCOPES = "https://www.googleapis.com/auth/drive.file";
+
+        let tokenClient;
+        let gapiInited = false;
+        let gisInited = false;
+        let accessToken = null;
+
         // ==================== DATA PERSONEL & INVENTARIS ====================
         let dataPersonel = JSON.parse(localStorage.getItem('dataPersonel')) || [
             { nama: 'Dimas Angga P', jabatan: 'Anggota' },
@@ -518,6 +590,153 @@
             { nama: 'TONGKAT/RAMBU STOP', jumlah: '2', kondisi: 'BAIK' },
             { nama: 'DESKTOP PC SET', jumlah: '1', kondisi: 'BAIK' }
         ];
+
+        let laporanData = JSON.parse(localStorage.getItem('laporanData')) || [];
+
+        // ==================== GOOGLE API INIT ====================
+        function gapiLoaded() {
+            gapi.load('client', initializeGapiClient);
+        }
+
+        async function initializeGapiClient() {
+            try {
+                await gapi.client.init({
+                    apiKey: API_KEY,
+                    discoveryDocs: DISCOVERY_DOCS,
+                });
+                gapiInited = true;
+                checkAuth();
+            } catch(error) {
+                console.error('GAPI Init Error:', error);
+            }
+        }
+
+        function gisLoaded() {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: SCOPES,
+                callback: '',
+            });
+            gisInited = true;
+            checkAuth();
+        }
+
+        function checkAuth() {
+            if (gapiInited && gisInited) {
+                const token = gapi.client.getToken();
+                if (token !== null) {
+                    accessToken = token.access_token;
+                    updateGoogleDriveStatus(true);
+                }
+            }
+        }
+
+        function authenticateGoogle() {
+            tokenClient.callback = async (resp) => {
+                if (resp.error !== undefined) {
+                    alert('Authentication failed: ' + resp.error);
+                    return;
+                }
+                accessToken = gapi.client.getToken().access_token;
+                updateGoogleDriveStatus(true);
+                alert('✅ Google Drive connected successfully!');
+            };
+            tokenClient.requestAccessToken({ prompt: 'consent' });
+        }
+
+        function logoutGoogle() {
+            const token = gapi.client.getToken();
+            if (token !== null) {
+                google.accounts.oauth2.revoke(token.access_token);
+                gapi.client.setToken('');
+                accessToken = null;
+                updateGoogleDriveStatus(false);
+                alert('Google Drive disconnected');
+            }
+        }
+
+        function updateGoogleDriveStatus(connected) {
+            const statusText = document.getElementById('gdrive-status-text');
+            const btnAuth = document.getElementById('btn-auth-google');
+            const btnLogout = document.getElementById('btn-logout-google');
+            
+            if(connected) {
+                statusText.textContent = 'Connected ✅';
+                statusText.className = 'text-green-500';
+                btnAuth.style.display = 'none';
+                btnLogout.style.display = 'inline-block';
+            } else {
+                statusText.textContent = 'Not Connected ❌';
+                statusText.className = 'text-red-500';
+                btnAuth.style.display = 'inline-block';
+                btnLogout.style.display = 'none';
+            }
+        }
+
+        async function uploadToGoogleDrive(base64Pdf, filename) {
+            return new Promise((resolve, reject) => {
+                if (!accessToken) {
+                    reject(new Error('Not authenticated'));
+                    return;
+                }
+
+                tokenClient.callback = async (resp) => {
+                    if (resp.error !== undefined) {
+                        reject(resp);
+                        return;
+                    }
+
+                    try {
+                        const base64Data = base64Pdf.replace(/^data:application\/pdf;base64,/, '');
+                        const byteCharacters = atob(base64Data);
+                        const byteNumbers = new Array(byteCharacters.length);
+                        for (let i = 0; i < byteCharacters.length; i++) {
+                            byteNumbers[i] = byteCharacters.charCodeAt(i);
+                        }
+                        const byteArray = new Uint8Array(byteNumbers);
+                        const blob = new Blob([byteArray], { type: 'application/pdf' });
+
+                        const metadata = {
+                            'name': filename,
+                            'mimeType': 'application/pdf',
+                            'parents': ['root']
+                        };
+
+                        const accessToken = gapi.client.getToken().access_token;
+                        
+                        const form = new FormData();
+                        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+                        form.append('file', blob);
+
+                        const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                            method: 'POST',
+                            headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+                            body: form
+                        });
+
+                        const result = await response.json();
+
+                        if (result.id) {
+                            resolve({
+                                success: true,
+                                fileId: result.id,
+                                fileUrl: `https://drive.google.com/file/d/${result.id}/view`
+                            });
+                        } else {
+                            reject(result);
+                        }
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+
+                if (gapi.client.getToken() === null) {
+                    tokenClient.requestAccessToken({ prompt: 'consent' });
+                } else {
+                    tokenClient.requestAccessToken({ prompt: '' });
+                }
+            });
+        }
 
         // ==================== PAGE NAVIGATION ====================
         function showPage(pageName) {
@@ -539,7 +758,7 @@
             btnGenerate.style.display = (pageName === 'mutasi') ? 'block' : 'none';
 
             if(pageName === 'dashboard') loadDashboardData();
-            if(pageName === 'mutasi') loadPersonelDropdown();
+            if(pageName === 'mutasi') loadPersonnelDropdown();
             if(pageName === 'setting') { loadSettingPersonel(); loadSettingInventaris(); }
         }
 
@@ -647,7 +866,7 @@
         }
 
         // ==================== DROPDOWN PERSONEL ====================
-        function loadPersonelDropdown() {
+        function loadPersonnelDropdown() {
             document.querySelectorAll('.input-nama-select').forEach(select => {
                 const currentValue = select.value;
                 select.innerHTML = '<option value="">Pilih Nama...</option>';
@@ -672,7 +891,6 @@
         // ==================== DASHBOARD DATA ====================
         let chartShiftInstance = null;
         let chartHarianInstance = null;
-        let laporanData = JSON.parse(localStorage.getItem('laporanMutasi')) || [];
 
         function loadDashboardData() {
             const currentMonth = new Date().getMonth();
@@ -763,12 +981,16 @@
             }
 
             laporanData.slice(-5).reverse().forEach(l => {
+                const driveLink = l.googleDriveUrl ? 
+                    `<a href="${l.googleDriveUrl}" target="_blank" class="text-blue-600 hover:underline"><i class="fab fa-google-drive"></i> Drive</a>` : 
+                    '<span class="text-gray-400">-</span>';
+                
                 tbody.innerHTML += `<tr class="hover:bg-gray-50">
                     <td class="p-3 border-b text-sm">${l.tanggal}</td>
                     <td class="p-3 border-b text-sm">${l.hari}</td>
                     <td class="p-3 border-b text-sm"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">${l.dinas}</span></td>
                     <td class="p-3 border-b text-sm">${l.kajaga}</td>
-                    <td class="p-3 border-b text-center"><span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Selesai</span></td>
+                    <td class="p-3 border-b text-center">${driveLink}</td>
                 </tr>`;
             });
         }
@@ -785,7 +1007,11 @@
         });
 
         document.getElementById('inputDinas')?.addEventListener('change', function() {
-            const shiftTimes = { 'Shift I': '06:00 - 14:00', 'Shift II': '14:00 - 22:00', 'Shift III': '22:00 - 06:00' };
+            const shiftTimes = {
+                'Shift I': '06:00 - 14:00',
+                'Shift II': '14:00 - 22:00',
+                'Shift III': '22:00 - 06:00'
+            };
             document.getElementById('inputJam').value = shiftTimes[this.value] || '';
         });
 
@@ -818,7 +1044,7 @@
                 </button>
             `;
             container.appendChild(div);
-            loadPersonelDropdown();
+            loadPersonnelDropdown();
         }
 
         function addActivityRow() {
@@ -841,7 +1067,7 @@
             if(container.children.length > 1) {
                 parent.remove();
                 if(container.id === 'activity-container') updateKegiatanNumbers();
-                if(container.id === 'personnel-container') { updateKajagaFromFirstPersonel(); loadPersonelDropdown(); }
+                if(container.id === 'personnel-container') { updateKajagaFromFirstPersonel(); loadPersonnelDropdown(); }
             } else {
                 parent.querySelectorAll('input, select').forEach(el => el.value = '');
                 if(container.id === 'personnel-container') updateKajagaFromFirstPersonel();
@@ -852,8 +1078,18 @@
             document.getElementById('activity-container').querySelectorAll('.no-kegiatan').forEach((cell, i) => cell.innerText = i + 1);
         }
 
+        // ==================== SHOW LOADING ====================
+        function showLoading(message) {
+            document.getElementById('loadingText').textContent = message;
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
         // ==================== GENERATE PDF ====================
-        function generatePDF() {
+        async function generatePDF() {
             const hari = document.getElementById('inputHari').value || '__________';
             const tanggal = document.getElementById('inputTanggal').value || '__________';
             const dinas = document.getElementById('inputDinas').value || '__________';
@@ -862,24 +1098,31 @@
             const menyerah = document.getElementById('inputMenyerahkan').value || '__________________';
             const menerima = document.getElementById('inputMenerima').value || '__________________';
 
+            if(tanggal === '__________' || dinas === '__________') {
+                alert('Tanggal dan Dinas wajib diisi!');
+                return;
+            }
+
             const tanggalParts = tanggal.split('-');
             const formattedTanggal = tanggalParts[2] + '/' + tanggalParts[1] + '/' + tanggalParts[0];
 
             const personel = [], kegiatan = [];
             
             document.querySelectorAll('.input-nama-select').forEach((select, i) => {
-                personel.push({ nama: select.value || '-', jabatan: select.closest('.personnel-row').querySelector('.input-jabatan')?.value || '-' });
+                personel.push({ 
+                    nama: select.value || '-', 
+                    jabatan: select.closest('.personnel-row').querySelector('.input-jabatan')?.value || '-' 
+                });
             });
             document.querySelectorAll('.input-keg-jam').forEach((input, i) => {
                 const row = input.closest('.activity-row');
-                kegiatan.push({ jam: input.value || '-', uraian: row.querySelector('.input-keg-uraian')?.value || '-' });
+                kegiatan.push({ 
+                    jam: input.value || '-', 
+                    uraian: row.querySelector('.input-keg-uraian')?.value || '-' 
+                });
             });
 
-            if(tanggal !== '__________') {
-                laporanData.push({ tanggal, hari, dinas, jam, kajaga, personel, inventaris: dataInventaris, kegiatan });
-                localStorage.setItem('laporanMutasi', JSON.stringify(laporanData));
-            }
-
+            // Fill PDF Template
             document.getElementById('pdf-hari-tanggal').innerText = hari + ', ' + formattedTanggal;
             document.getElementById('pdf-kajaga').innerText = kajaga;
             document.getElementById('pdf-dinas').innerText = dinas;
@@ -903,17 +1146,90 @@
             const element = document.getElementById('pdf-template');
             element.style.display = 'block';
 
-            html2pdf().set({
-                margin: [0, 0, 0, 0],
-                filename: `Mutasi ${hari},${formattedTanggal.replace(/\//g,'-')} (${dinas}).pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', pagebreak: { mode: 'avoid-all' } }
-            }).from(element).save().then(() => { element.style.display = 'none'; });
+            showLoading('Generating PDF...');
+
+            try {
+                const pdf = await html2pdf().set({
+                    margin: [0, 0, 0, 0],
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', pagebreak: { mode: 'avoid-all' } }
+                }).from(element).toPdf().get('pdf');
+
+                const base64Pdf = pdf.output('datauristring');
+                const filename = `Mutasi_${hari}_${formattedTanggal.replace(/\//g,'-')}_(${dinas}).pdf`;
+
+                // Save to localStorage
+                const laporanEntry = {
+                    tanggal, hari, dinas, jam, kajaga, menyerah, menerima, personel, kegiatan,
+                    googleDriveUrl: '',
+                    createdAt: new Date().toISOString()
+                };
+                laporanData.push(laporanEntry);
+                localStorage.setItem('laporanData', JSON.stringify(laporanData));
+
+                // Upload to Google Drive
+                let driveResult = null;
+                if(accessToken) {
+                    showLoading('Uploading to Google Drive...');
+                    try {
+                        driveResult = await uploadToGoogleDrive(base64Pdf, filename);
+                        
+                        // Update laporan with Drive URL
+                        const lastLaporan = laporanData[laporanData.length - 1];
+                        lastLaporan.googleDriveUrl = driveResult.fileUrl;
+                        localStorage.setItem('laporanData', JSON.stringify(laporanData));
+                    } catch(driveError) {
+                        console.error('Drive upload failed:', driveError);
+                    }
+                }
+
+                // Download to device
+                pdf.save(filename);
+
+                element.style.display = 'none';
+                hideLoading();
+
+                // Show success message
+                let message = '✅ PDF berhasil dibuat!\n\n📥 File di-download ke device Anda.';
+                if(driveResult && driveResult.success) {
+                    message += '\n\n☁️ Tersimpan di Google Drive:\n' + driveResult.fileUrl;
+                }
+                alert(message);
+
+                // Reset form
+                document.getElementById('mutasiForm')?.reset();
+                
+            } catch(error) {
+                console.error('PDF generation error:', error);
+                element.style.display = 'none';
+                hideLoading();
+                alert('❌ Error: ' + error.message);
+            }
         }
 
-        window.addEventListener('load', loadDashboardData);
+        // Initialize
+        window.addEventListener('load', function() {
+            loadDashboardData();
+            gapiLoaded();
+            gisLoaded();
+        });
     </script>
+    
+    <!-- Google API Scripts -->
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body>
 </html>
 
+
+
+              <script>
+                              const CLIENT_ID = 'YOUR_CLIENT_ID_HERE.apps.googleusercontent.com';
+const API_KEY = 'YOUR_API_KEY_HERE';
+
+
+              </script>
+                        </body>
+                        </html>
+                    
